@@ -1,4 +1,4 @@
-package labprogiii.client;
+package labprogiii.server;
 
 import java.util.Date;
 
@@ -6,7 +6,7 @@ import java.util.Date;
  *
  * @author pinasu
  */
-    class Account{
+    class Account {
         String accountName;
         Date creationDate;
         

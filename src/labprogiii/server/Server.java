@@ -12,9 +12,8 @@ import java.util.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import labprogiii.interfaces.Account;
+
 import labprogiii.interfaces.EMail;
-import labprogiii.interfaces.ServerInbox;
 
 
 /**
@@ -23,50 +22,48 @@ import labprogiii.interfaces.ServerInbox;
  */
 class Server extends UnicastRemoteObject implements ServerInterface {
     Context naming;
-    Registry reg;
     ServerView view;
-    HashMap<String, List<ServerInbox>> inboxMap;
+    HashMap<String, ServerInbox> inboxMap;
 
-    public Server(ServerView view) throws RemoteException, NamingException{
+    public Server(ServerView view) throws RemoteException, NamingException {
+        LocateRegistry.createRegistry(1099);
+
         this.inboxMap = new HashMap();
 
         this.view = view;
-        this.reg = LocateRegistry.createRegistry(1099);
+
         this.naming = new InitialContext();
-        this.naming.rebind("rmi:server", this);
+        this.naming.bind("rmi:server", this);
 
         ArrayList<Account> accountList = new ArrayList<>();
+        accountList.add(new Account("gianni", new Date()));
+        accountList.add(new Account("pino", new Date()));
+        accountList.add(new Account("mila", new Date()));
 
-        accountList.add(new AccountImpl("gianni", new Date()));
-        accountList.add(new AccountImpl("pino", new Date()));
-        accountList.add(new AccountImpl("mila", new Date()));
-        initiateInbox(accountList);
+        setUpInbox(accountList);
 
         this.view.printLog("Waiting for clients...");
     }
     
-    @Override
-    public ArrayList<EMail> getMailList(Account a) throws RemoteException{
+    public ArrayList<EMail> getMessagesIn(String account) throws RemoteException{
 
-        view.printLog("User "+a.getAccountName()+" retrieved his messages.");
+        view.printLog("User "+account+" retrieved his messages.");
 
-        return(this.inboxMap.get(a.getAccountName()).get(0).getMessages());
-
-    }
-
-    @Override
-    public ArrayList<EMail> getSentMail(Account a) throws RemoteException{
-
-        view.printLog("User "+a.getAccountName()+" retrieved his sent messages.");
-
-        return(this.inboxMap.get(a.getAccountName()).get(1).getMessages());
+        return(this.inboxMap.get(account).getMessagesIn());
 
     }
 
-    private void initiateInbox(ArrayList<Account> accountList) throws RemoteException {
+    public ArrayList<EMail> getMessagesOut(String account) throws RemoteException{
+
+        view.printLog("User "+account+" retrieved his sent messages.");
+
+        return(this.inboxMap.get(account).getMessagesOut());
+
+    }
+
+    private void setUpInbox(ArrayList<Account> accountList) throws RemoteException {
         ArrayList<EMail> emailListIn = new ArrayList<>();
         ArrayList<EMail> emailListOut = new ArrayList<>();
-
 
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
         System.out.println(PATH);
@@ -113,8 +110,9 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
                                     if(f.getName().equals("sent"))
                                         emailListOut.add(new EmailServerImpl(ID[0], sender, new ArrayList<>(set), argument, text));
+
                                     else if(f.getName().equals("received"))
-                                        emailListIn.add(new EmailServerImpl(    ID[0], sender, new ArrayList<>(set), argument, text));
+                                        emailListIn.add(new EmailServerImpl(ID[0], sender, new ArrayList<>(set), argument, text));
 
                                     in.close();
 
@@ -128,16 +126,12 @@ class Server extends UnicastRemoteObject implements ServerInterface {
             }
         }
         for(Account a : accountList){
-            ServerInbox inboxIn = new ServerInboxImpl(a, emailListIn);
-            ServerInbox inboxOut = new ServerInboxImpl(a, emailListOut);
+            ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
 
-            ArrayList inboxList = new ArrayList<ServerInbox>();
-            inboxList.add(inboxIn);
-            inboxList.add(inboxOut);
+            inboxMap.put(a.getAccountName(), inbox);
 
-            inboxMap.put(a.getAccountName(), inboxList);
             view.printLog("Inbox for account "+a.getAccountName()+" created.");
         }
     }
-   
+
 }

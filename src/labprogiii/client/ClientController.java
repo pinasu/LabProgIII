@@ -18,7 +18,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import labprogiii.interfaces.Account;
 import labprogiii.interfaces.EMail;
 
 /**

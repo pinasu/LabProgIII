@@ -9,7 +9,7 @@ import java.util.Observable;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import labprogiii.interfaces.Account;
+
 import labprogiii.interfaces.EMail;
 
 /**
@@ -44,23 +44,16 @@ final class Client extends Observable {
         return this.emailSent;
     }
 
-    public Account getAccountClient() {
-        return this.account;
-    }
-
-    public void setAccountClient(Account account) {
-        this.account = account;
-    }
-
     public void retrieveMessages() throws RemoteException {
-        this.emailList = server.getMailList(this.account);
+        this.emailList = server.getMessagesIn(this.account.getAccountName());
         setChanged();
         notifyObservers(emailList);
     }
 
     public void retrieveSentMessages() throws RemoteException{
-        this.emailSent = this.server.getSentMail(this.account);
+        this.emailSent = this.server.getMessagesOut(this.account.getAccountName());
         setChanged();
         notifyObservers(emailSent);
     }
+
 }

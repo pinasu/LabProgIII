@@ -12,7 +12,7 @@ import javax.naming.NamingException;
 public class ClientMain {
     public static void main(String[] args) throws NamingException, RemoteException {
 
-        Client client = new Client(new AccountImpl("gianni", new Date()));
+        Client client = new Client(new Account("gianni", new Date()));
 
         ClientController controller =  new ClientController(client);
 

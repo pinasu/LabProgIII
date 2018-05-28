@@ -51,7 +51,7 @@ class ClientView extends JFrame {
         
         sendMail.addActionListener(this.controller);
         
-        this.setTitle(controller.getAccount().getAccountName());
+        this.setTitle(controller.getAccount().getAccountName()+"@pmail.com");
         this.setDefaultCloseOperation(3);
         this.setSize(900, 600);
         this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);

@@ -9,9 +9,9 @@ import java.util.ArrayList;
  * @author pinasu
  */
 public interface ServerInterface extends Remote {
-    
-    ArrayList<EMail> getMailList(Account a) throws RemoteException;
 
-    ArrayList<EMail> getSentMail(Account a) throws RemoteException;
-    
+    ArrayList<EMail> getMessagesIn(String account) throws RemoteException;
+
+    ArrayList<EMail> getMessagesOut(String account) throws RemoteException;
+
 }

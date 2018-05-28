@@ -6,11 +6,11 @@ import java.util.Date;
  *
  * @author pinasu
  */
-    class AccountClient{
+    class Account{
         String accountName;
         Date creationDate;
         
-        public AccountClient(String name, Date date){
+        public Account(String name, Date date){
             this.accountName = name;
             this.creationDate = date;
         }

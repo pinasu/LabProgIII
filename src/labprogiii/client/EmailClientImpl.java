@@ -11,11 +11,17 @@ import labprogiii.interfaces.EMail;
  */
 class EmailClientImpl implements EMail{
         String ID;
+
         String sender;
+
         ArrayList<String> recipient;
+
         String argument;
+
         String text;
+
         int priority;
+
         Date date;
         
         public EmailClientImpl(String ID, String sender, ArrayList<String> recipient, String argument, String text) throws RemoteException{
