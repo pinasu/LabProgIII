@@ -26,19 +26,23 @@ import labprogiii.interfaces.EMail;
  */
 
 public class ClientController implements MouseListener, ActionListener, Observer {
-    
     Client client;
     Account account;
     ClientView view;
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     ArrayList<EMail> emailListIn, emailListOut;
-    JTable table = new JTable();
 
     public ClientController(Client c) throws RemoteException {
         this.client = c;
+
+        this.client.setController(this);
+
+        populateData(this.emailListIn = client.getEmailList());
+        populateData(this.emailListOut = client.getEmailListOut());
+
+        this.view = new ClientView(this);
+
         this.account = client.account;
-        this.emailListIn = client.getEmailList();
-        this.emailListOut = client.getEmailListOut();
     }
     
     public Account getAccount(){
@@ -130,6 +134,11 @@ public class ClientController implements MouseListener, ActionListener, Observer
         frame.setVisible(true);
     }
 
+    public void populateData(ArrayList <EMail> emailList){
+        this.view.populateData(emailList);
+    }
+
+    /*
     public void sentMailView() throws RemoteException {
         JFrame frame = new JFrame();
         JScrollPane scrollPane = new JScrollPane();
@@ -148,42 +157,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
         frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
         frame.setVisible(true);
     }
-
-    void setEmailList(ArrayList<EMail> emailList){
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        Vector<String> columnNames = new Vector<>();
-        columnNames.add("From");
-        columnNames.add("Argument");
-        columnNames.add("Date");
-
-        Vector<Vector> data = new Vector<>();
-
-        for (EMail e : emailList) {
-            Vector<String> row = new Vector<>();
-
-            try {
-                row.add(e.getEmailSender());
-                row.add(e.getEmailArgument());
-                row.add(e.getEmailDate().toString());
-            } catch (RemoteException ex) {
-                System.out.println(ex.getCause());
-            }
-            data.add(row);
-        }
-
-        MyTableModel model = new MyTableModel(data, columnNames);
-        this.table = new JTable(model);
-        this.table.setShowGrid(false);
-        this.table.setFillsViewportHeight(true);
-        this.table.setRowHeight(30);
-
-        this.table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-        this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
-    }
-
+    */
     public class MyTableModel extends DefaultTableModel {
         private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
             super(data, columnNames);
@@ -195,17 +169,11 @@ public class ClientController implements MouseListener, ActionListener, Observer
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals("Write a new Email"))
+    public void actionPerformed(ActionEvent ev) {
+        if(ev.getActionCommand().equals("New Email"))
             sendMailView();
-        else if(e.getActionCommand().equals("Sent messages")) {
-            try {
-                sentMailView();
-            } catch (RemoteException e1) {
-                e1.printStackTrace();
-            }
-        }
-
+        //else if(ev.getActionCommand().equals("Sent messages"))
+        // sentMailView();
     }
     
     @Override
@@ -222,11 +190,15 @@ public class ClientController implements MouseListener, ActionListener, Observer
     
     @Override
     public void update(Observable o, Object arg) {
-        view.setEmailList((ArrayList<EMail>) arg);
+        //view.setEmailList((ArrayList<EMail>) arg);
     }
     
-    public ArrayList<EMail> getEmailList(){
+    public ArrayList<EMail> getEmailIn(){
         return this.emailListIn;
+    }
+
+    public ArrayList<EMail> getEmailOut(){
+        return this.emailListOut;
     }
 
     @Override

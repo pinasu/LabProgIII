@@ -10,7 +10,6 @@ import javax.naming.NamingException;
 
 public class ServerMain {
     public static void main(String[] args) throws RemoteException, NamingException {
-        Server server = new Server(new ServerView());
-        //provaCommitPush
+        new Server();
     }
 }

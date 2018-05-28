@@ -18,7 +18,7 @@ class ServerView extends JFrame implements Observer {
     JTextArea textArea;
     JScrollPane scrollPane;
     
-    public ServerView(){
+    public ServerView(ServerController controller){
         super("Server Log");
         this.textArea = new JTextArea("All Server events will be registered here.");
         this.textArea.setEditable(false);
@@ -30,7 +30,7 @@ class ServerView extends JFrame implements Observer {
     }
     
     public void printLog(String message) {
-        DateFormat dateFormat = new SimpleDateFormat("[dd/MM/yyyy - HH:mm:ss] ");
+        DateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss] ");
         Date date = new Date();
         this.textArea.setText(this.textArea.getText()+"\n"+dateFormat.format(date)+message);
         this.textArea.repaint();

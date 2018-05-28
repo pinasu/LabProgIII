@@ -1,17 +1,11 @@
 package labprogiii.client;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Vector;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
@@ -21,55 +15,69 @@ import labprogiii.interfaces.EMail;
  * @author pinasu
  */
 class ClientView extends JFrame {
+    JPanel menu;
+    JButton sentButton, receivedButton, newMailButton;
+
+    JScrollPane body;
+    JPanel extern;
+    JLabel title;
+
     JTable table;
-    JScrollPane scrollPane;
-    JPanel panel;
+
+    //ON UPDATE -> ADD
+    Vector<Vector> data;
+
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+
     ClientController controller;
-    MyTableModel model;
 
-
-    public ClientView(ClientController c) throws RemoteException{
+    public ClientView(ClientController c) {
         this.controller = c;
 
+        this.menu = newMenu();
+
+        this.title = new JLabel();
+        this.body = new JScrollPane();
+
         this.setLayout(new BorderLayout());
-        
-        setEmailList(controller.getEmailList());
-        this.scrollPane = new JScrollPane(table);
-        this.add(scrollPane, BorderLayout.CENTER);
-        
-        table.addMouseListener(this.controller);
 
-        JButton showSent = new JButton("Sent messages");
-        showSent.addActionListener(this.controller);
+        //Received
+        showMail(0);
 
-        JButton sendMail = new JButton("Write a new Email");
-        panel = new JPanel();
-        panel.add(sendMail);
-        panel.add(showSent);
-        this.add(panel, BorderLayout.SOUTH);
-        
-        sendMail.addActionListener(this.controller);
-        
+        this.add(menu, BorderLayout.WEST);
+
+        extern = new JPanel();
+        extern.setLayout(new BorderLayout());
+        extern.add(title, BorderLayout.NORTH);
+        extern.add(body);
+
+        this.add(extern, BorderLayout.CENTER);
+
         this.setTitle(controller.getAccount().getAccountName()+"@pmail.com");
         this.setDefaultCloseOperation(3);
         this.setSize(900, 600);
         this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         this.setVisible(true);
-        
+
+
     }
-    
-    void setEmailList(ArrayList<EMail> emailList){
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        
-        Vector<String> columnNames = new Vector<>();
-        columnNames.add("From");
-        columnNames.add("Argument");
-        columnNames.add("Date");
-        
-        Vector<Vector> data = new Vector<>();
-        
+
+    JPanel newMenu(){
+        JPanel menu = new JPanel();
+        menu.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        menu.setLayout(new BoxLayout(menu, BoxLayout.PAGE_AXIS));
+
+        menu.add(receivedButton = new JButton("Received"));
+        menu.add(sentButton = new JButton("Sent"));
+        menu.add(newMailButton = new JButton("New Email"));
+
+        newMailButton.addActionListener(this.controller);
+        return menu;
+    }
+
+    Vector<Vector> populateData(ArrayList<EMail> emailList){
+        Vector<Vector> tmp = new Vector<>();
         for (EMail e : emailList) {
             Vector<String> row = new Vector<>();
 
@@ -80,18 +88,47 @@ class ClientView extends JFrame {
             } catch (RemoteException ex) {
                 System.out.println(ex.getCause());
             }
-            data.add(row);
+            tmp.add(row);
         }
-        
-        model = new MyTableModel(data, columnNames);
-        this.table = new JTable(model);
-        this.table.setShowGrid(false);
+        return tmp;
+    }
+
+    void showMail(int type) {
+        Vector<String> columnNames;
+        String v = "";
+        MyTableModel model;
+
+        if (type == 0){
+            this.title.setText("Received");
+            v = "From";
+        }
+        else if(type == 1){
+            this.title.setText("Sent");
+            v = "To";
+        }
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        columnNames = new Vector<>();
+        columnNames.add(v);
+        columnNames.add("Argument");
+        columnNames.add("Date");
+
+        model = new MyTableModel(this.data, columnNames);
+
+        table = new JTable(model);
+        table.setShowGrid(false);
         table.setFillsViewportHeight(true);
         table.setRowHeight(30);
-        
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
-        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);    
+        table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+
+        body = new JScrollPane(table);
+
+        table.addMouseListener(this.controller);
+
     }
 
     public class MyTableModel extends DefaultTableModel {

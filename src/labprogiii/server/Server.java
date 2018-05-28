@@ -21,16 +21,16 @@ import labprogiii.interfaces.EMail;
  * @author pinasu
  */
 class Server extends UnicastRemoteObject implements ServerInterface {
+    ServerController controller;
     Context naming;
-    ServerView view;
     HashMap<String, ServerInbox> inboxMap;
 
-    public Server(ServerView view) throws RemoteException, NamingException {
+    public Server() throws RemoteException, NamingException {
+        this.controller = new ServerController(this);
+
         LocateRegistry.createRegistry(1099);
 
         this.inboxMap = new HashMap();
-
-        this.view = view;
 
         this.naming = new InitialContext();
         this.naming.bind("rmi:server", this);
@@ -42,12 +42,16 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
         setUpInbox(accountList);
 
-        this.view.printLog("Waiting for clients...");
+        controller.printLog("Waiting for clients...");
     }
-    
+
+    public void notifyConnection(String account){
+        this.controller.printLog("User "+account+" has connected.");
+    }
+
     public ArrayList<EMail> getMessagesIn(String account) throws RemoteException{
 
-        view.printLog("User "+account+" retrieved his messages.");
+        this.controller.printLog("User "+account+" retrieved his messages.");
 
         return(this.inboxMap.get(account).getMessagesIn());
 
@@ -55,7 +59,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
     public ArrayList<EMail> getMessagesOut(String account) throws RemoteException{
 
-        view.printLog("User "+account+" retrieved his sent messages.");
+        this.controller.printLog("User "+account+" retrieved his sent messages.");
 
         return(this.inboxMap.get(account).getMessagesOut());
 
@@ -117,7 +121,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                                     in.close();
 
                                 } catch (FileNotFoundException e) {
-                                    this.view.printLog(e.getMessage());
+                                    this.controller.printLog(e.getMessage());
                                 }
                             }
                         }
@@ -130,7 +134,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
             inboxMap.put(a.getAccountName(), inbox);
 
-            view.printLog("Inbox for account "+a.getAccountName()+" created.");
+            this.controller.printLog("Inbox for account "+a.getAccountName()+" created.");
         }
     }
 
