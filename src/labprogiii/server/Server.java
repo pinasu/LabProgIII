@@ -114,7 +114,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                                     if(f.getName().equals("sent"))
                                         emailListOut.add(new EmailServerImpl(ID[0], sender, new ArrayList<>(set), argument, text));
                                     else if(f.getName().equals("received"))
-                                        emailListIn.add(new EmailServerImpl(ID[0], sender, new ArrayList<>(set), argument, text));
+                                        emailListIn.add(new EmailServerImpl(    ID[0], sender, new ArrayList<>(set), argument, text));
 
                                     in.close();
 
