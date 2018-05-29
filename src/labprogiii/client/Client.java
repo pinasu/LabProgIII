@@ -26,8 +26,6 @@ final class Client extends Observable {
     
     public Client(Account account) throws NamingException, RemoteException{
         this.account = account;
-
-
         this.namingContext = new InitialContext();
         try{
             server = (ServerInterface)namingContext.lookup("rmi:server");

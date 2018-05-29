@@ -34,17 +34,15 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     public ClientController(Client c) throws RemoteException {
         this.client = c;
-
         this.client.setController(this);
-
-        populateData(this.emailListIn = client.getEmailList());
-        populateData(this.emailListOut = client.getEmailListOut());
+        this.account = client.account;
 
         this.view = new ClientView(this);
 
-        this.account = client.account;
+        this.emailListIn = client.getEmailList();
+        this.emailListOut = client.getEmailListOut();
     }
-    
+
     public Account getAccount(){
         return this.account;
     }
@@ -134,8 +132,27 @@ public class ClientController implements MouseListener, ActionListener, Observer
         frame.setVisible(true);
     }
 
-    public void populateData(ArrayList <EMail> emailList){
-        this.view.populateData(emailList);
+    Vector<Vector> populateData(int type){
+        ArrayList<EMail> emailList = new ArrayList<>();
+        if (type == 0)
+            emailList = this.emailListIn;
+        else
+            emailList = this.emailListOut;
+
+        Vector<Vector> tmp = new Vector<>();
+        for (EMail e : emailList) {
+            Vector<String> row = new Vector<>();
+
+            try {
+                row.add(e.getEmailSender());
+                row.add(e.getEmailArgument());
+                row.add(e.getEmailDate().toString());
+            } catch (RemoteException ex) {
+                System.out.println(ex.getCause());
+            }
+            tmp.add(row);
+        }
+        return tmp;
     }
 
     /*
@@ -158,6 +175,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
         frame.setVisible(true);
     }
     */
+
     public class MyTableModel extends DefaultTableModel {
         private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
             super(data, columnNames);
@@ -191,14 +209,6 @@ public class ClientController implements MouseListener, ActionListener, Observer
     @Override
     public void update(Observable o, Object arg) {
         //view.setEmailList((ArrayList<EMail>) arg);
-    }
-    
-    public ArrayList<EMail> getEmailIn(){
-        return this.emailListIn;
-    }
-
-    public ArrayList<EMail> getEmailOut(){
-        return this.emailListOut;
     }
 
     @Override

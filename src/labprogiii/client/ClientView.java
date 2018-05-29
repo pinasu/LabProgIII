@@ -76,23 +76,6 @@ class ClientView extends JFrame {
         return menu;
     }
 
-    Vector<Vector> populateData(ArrayList<EMail> emailList){
-        Vector<Vector> tmp = new Vector<>();
-        for (EMail e : emailList) {
-            Vector<String> row = new Vector<>();
-
-            try {
-                row.add(e.getEmailSender());
-                row.add(e.getEmailArgument());
-                row.add(e.getEmailDate().toString());
-            } catch (RemoteException ex) {
-                System.out.println(ex.getCause());
-            }
-            tmp.add(row);
-        }
-        return tmp;
-    }
-
     void showMail(int type) {
         Vector<String> columnNames;
         String v = "";
@@ -106,6 +89,8 @@ class ClientView extends JFrame {
             this.title.setText("Sent");
             v = "To";
         }
+
+        this.data = controller.populateData(type);
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
