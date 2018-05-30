@@ -2,10 +2,8 @@ package labprogiii.client;
 
 import java.awt.*;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
@@ -35,7 +33,6 @@ class ClientView extends JFrame {
 
     public ClientView(Client c) {
 
-
         this.client = c;
 
         this.controller = new ClientController(c, this);
@@ -44,7 +41,7 @@ class ClientView extends JFrame {
 
         this.menu = newMenu();
 
-        showMail(RECEIVED_MESSAGES);
+        showMailList(RECEIVED_MESSAGES);
 
         this.setDefaultCloseOperation(3);
         this.setSize(900, 600);
@@ -55,9 +52,40 @@ class ClientView extends JFrame {
 
     }
 
-    void showMail(int type) {
-        createExtern();
+    public void showMail(EMail e) throws RemoteException{
+        JFrame frame = new JFrame();
+        if(controller.getType() == SENT_MESSAGES)
+            frame.setTitle("Email to "+e.getEmailRecipient().toString());
+        else if(controller.getType() == RECEIVED_MESSAGES)
+            frame.setTitle("Email from "+e.getEmailSender());
 
+        JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n\t"+e.getEmailText());
+        content.setEditable(false);
+        content.setBorder(BorderFactory.createCompoundBorder(
+                content.getBorder(),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        frame.add(content);
+        frame.setSize(600, 300);
+        Dimension dimMv = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(dimMv.width/2-frame.getSize().width/2, dimMv.height/2-frame.getSize().height/2);
+        frame.setVisible(true);
+    }
+
+    void showMailList(int type) {
+        this.data = null;
+
+        this.setLayout(new BorderLayout());
+
+        this.title = new JLabel();
+
+        this.add(this.menu, BorderLayout.WEST);
+
+        this.extern = new JPanel();
+        this.extern.setLayout(new BorderLayout());
+        this.extern.add(this.title, BorderLayout.NORTH);
+
+        this.add(this.extern, BorderLayout.CENTER);
         Vector<String> columnNames;
         String v = "";
 
@@ -91,7 +119,6 @@ class ClientView extends JFrame {
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
 
         this.body = new JScrollPane(this.table);
-
         this.extern.add(body);
 
         this.table.addMouseListener(this.controller);
@@ -107,22 +134,6 @@ class ClientView extends JFrame {
         public boolean isCellEditable(int row, int column) {
             return false;
         }
-    }
-
-    private void createExtern(){
-        this.title = new JLabel();
-        this.body = new JScrollPane();
-
-        this.setLayout(new BorderLayout());
-
-        this.add(menu, BorderLayout.WEST);
-
-        this.extern = new JPanel();
-        this.extern.setLayout(new BorderLayout());
-        this.extern.add(title, BorderLayout.NORTH);
-        this.extern.add(body);
-
-        this.add(extern, BorderLayout.CENTER);
     }
 
     JPanel newMenu(){

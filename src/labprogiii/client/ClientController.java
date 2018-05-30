@@ -21,6 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
 
 /**
  *
@@ -47,6 +48,9 @@ public class ClientController implements MouseListener, ActionListener, Observer
         this.emailListOut = this.client.getEmailListOut();
     }
 
+    public int getType(){
+        return this.type;
+    }
 
     public void sendMailView(){        
         JFrame mailFrame = new JFrame("Write a new email");
@@ -115,36 +119,16 @@ public class ClientController implements MouseListener, ActionListener, Observer
         mailFrame.setLocation(dim.width/2-mailFrame.getSize().width/2, dim.height/2-mailFrame.getSize().height/2);
         mailFrame.setVisible(true);
     }
-    
-    public void showMailView(EMail e) throws RemoteException{
-        JFrame frame = new JFrame();
-        if(this.type == view.SENT_MESSAGES)
-            frame.setTitle("Email from "+e.getEmailSender());
-        else if(this.type == view.RECEIVED_MESSAGES)
-            frame.setTitle("Email to "+e.getEmailRecipient());
-
-        JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n\t"+e.getEmailText());
-        content.setEditable(false);
-        content.setBorder(BorderFactory.createCompoundBorder(
-        content.getBorder(), 
-        BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        
-        frame.add(content);
-        frame.setSize(600, 300);
-        Dimension dimMv = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dimMv.width/2-frame.getSize().width/2, dimMv.height/2-frame.getSize().height/2);
-        frame.setVisible(true);
-    }
 
     @Override
     public void actionPerformed(ActionEvent ev) {
         if (ev.getActionCommand().equals("New Email"))
             sendMailView();
         else if (ev.getActionCommand().equals("Sent"))
-            view.showMail(this.type = view.SENT_MESSAGES);
+            view.showMailList(this.type = view.SENT_MESSAGES);
 
         else if (ev.getActionCommand().equals("Received"))
-            view.showMail(this.type = view.RECEIVED_MESSAGES);
+            view.showMailList(this.type = view.RECEIVED_MESSAGES);
 
     }
     
@@ -152,17 +136,15 @@ public class ClientController implements MouseListener, ActionListener, Observer
     public void mouseClicked(MouseEvent ev) {
         ArrayList<EMail> emailList = null;
 
-        if(this.type == view.RECEIVED_MESSAGES) {
+        if(this.type == view.RECEIVED_MESSAGES)
             emailList = this.emailListIn;
-        }
-        else if(this.type == view.SENT_MESSAGES) {
-            emailList = this.emailListOut;
-        }
 
+        else if(this.type == view.SENT_MESSAGES)
+            emailList = this.emailListOut;
 
         try {
             if(view.table.getSelectedRow() < emailList.size() && view.table.getSelectedRow() != -1)
-                showMailView(emailList.get(view.table.getSelectedRow()));
+                view.showMail(emailList.get(view.table.getSelectedRow()));
         } catch (RemoteException ex) {
             System.out.println(ex.getCause());
         }

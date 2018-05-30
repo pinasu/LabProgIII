@@ -93,6 +93,7 @@ final class Client extends Observable {
                     row.add(e.getEmailSender());
                 else if (type == 1)
                     row.add(e.getEmailRecipient().toString());
+
                 row.add(e.getEmailArgument());
                 row.add(e.getEmailDate().toString());
             } catch (RemoteException ex) {
