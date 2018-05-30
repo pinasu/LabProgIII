@@ -20,6 +20,8 @@ import javax.swing.table.DefaultTableModel;
 
 import labprogiii.interfaces.EMail;
 
+import static java.lang.System.exit;
+
 /**
  *
  * @author pinasu
@@ -27,25 +29,24 @@ import labprogiii.interfaces.EMail;
 
 public class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
-    Account account;
     ClientView view;
+
+    Account account;
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     ArrayList<EMail> emailListIn, emailListOut;
 
-    public ClientController(Client c) throws RemoteException {
+    int type;
+
+    public ClientController(Client c, ClientView view) {
         this.client = c;
-        this.client.setController(this);
-        this.account = client.account;
+        this.account = client.getAccount();
 
-        this.view = new ClientView(this);
+        this.view = view;
 
-        this.emailListIn = client.getEmailList();
-        this.emailListOut = client.getEmailListOut();
+        this.emailListIn = this.client.getEmailListIn();
+        this.emailListOut = this.client.getEmailListOut();
     }
 
-    public Account getAccount(){
-        return this.account;
-    }
 
     public void sendMailView(){        
         JFrame mailFrame = new JFrame("Write a new email");
@@ -115,10 +116,13 @@ public class ClientController implements MouseListener, ActionListener, Observer
         mailFrame.setVisible(true);
     }
     
-    public void showMailView(int index) throws RemoteException{
-        EMail e = emailListIn.get(index);
+    public void showMailView(EMail e) throws RemoteException{
+        JFrame frame = new JFrame();
+        if(this.type == view.SENT_MESSAGES)
+            frame.setTitle("Email from "+e.getEmailSender());
+        else if(this.type == view.RECEIVED_MESSAGES)
+            frame.setTitle("Email to "+e.getEmailRecipient());
 
-        JFrame frame = new JFrame("Email from "+e.getEmailSender());
         JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n\t"+e.getEmailText());
         content.setEditable(false);
         content.setBorder(BorderFactory.createCompoundBorder(
@@ -132,77 +136,35 @@ public class ClientController implements MouseListener, ActionListener, Observer
         frame.setVisible(true);
     }
 
-    Vector<Vector> populateData(int type){
-        ArrayList<EMail> emailList = new ArrayList<>();
-        if (type == 0)
-            emailList = this.emailListIn;
-        else
-            emailList = this.emailListOut;
-
-        Vector<Vector> tmp = new Vector<>();
-        for (EMail e : emailList) {
-            Vector<String> row = new Vector<>();
-
-            try {
-                row.add(e.getEmailSender());
-                row.add(e.getEmailArgument());
-                row.add(e.getEmailDate().toString());
-            } catch (RemoteException ex) {
-                System.out.println(ex.getCause());
-            }
-            tmp.add(row);
-        }
-        return tmp;
-    }
-
-    /*
-    public void sentMailView() throws RemoteException {
-        JFrame frame = new JFrame();
-        JScrollPane scrollPane = new JScrollPane();
-
-        frame.setLayout(new BorderLayout());
-
-        setEmailList(emailListOut);
-        scrollPane = new JScrollPane(this.table);
-        frame.add(scrollPane, BorderLayout.CENTER);
-
-        JPanel panel = new JPanel();
-        frame.add(panel, BorderLayout.SOUTH);
-
-        frame.setTitle(this.getAccount().getAccountName());
-        frame.setSize(600, 300);
-        frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
-        frame.setVisible(true);
-    }
-    */
-
-    public class MyTableModel extends DefaultTableModel {
-        private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
-            super(data, columnNames);
-        }
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    }
-
     @Override
     public void actionPerformed(ActionEvent ev) {
-        if(ev.getActionCommand().equals("New Email"))
+        if (ev.getActionCommand().equals("New Email"))
             sendMailView();
-        //else if(ev.getActionCommand().equals("Sent messages"))
-        // sentMailView();
+        else if (ev.getActionCommand().equals("Sent"))
+            view.showMail(this.type = view.SENT_MESSAGES);
+
+        else if (ev.getActionCommand().equals("Received"))
+            view.showMail(this.type = view.RECEIVED_MESSAGES);
+
     }
     
     @Override
     public void mouseClicked(MouseEvent ev) {
-        if (client.getEmailList() != null) {
-            try {
-                if(view.table.getSelectedRow() < this.emailListIn.size() && view.table.getSelectedRow() != -1)
-                    showMailView(view.table.getSelectedRow());
-            } catch (RemoteException ex) {
-                System.out.println(ex.getCause());
-            }
+        ArrayList<EMail> emailList = null;
+
+        if(this.type == view.RECEIVED_MESSAGES) {
+            emailList = this.emailListIn;
+        }
+        else if(this.type == view.SENT_MESSAGES) {
+            emailList = this.emailListOut;
+        }
+
+
+        try {
+            if(view.table.getSelectedRow() < emailList.size() && view.table.getSelectedRow() != -1)
+                showMailView(emailList.get(view.table.getSelectedRow()));
+        } catch (RemoteException ex) {
+            System.out.println(ex.getCause());
         }
     }
     
@@ -226,4 +188,5 @@ public class ClientController implements MouseListener, ActionListener, Observer
     @Override
     public void mouseExited(MouseEvent e) {
     }
+
 }

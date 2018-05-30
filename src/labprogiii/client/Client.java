@@ -3,12 +3,15 @@ package labprogiii.client;
 import static java.lang.System.exit;
 import labprogiii.interfaces.ServerInterface;
 
+import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Vector;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.*;
 
 import labprogiii.interfaces.EMail;
 
@@ -19,53 +22,97 @@ import labprogiii.interfaces.EMail;
 
 final class Client extends Observable {
     Account account;
-    ClientController controller;
-    Context namingContext;
+    ClientView view;
     ServerInterface server;
-    ArrayList<EMail> emailList, emailSent;
+    ArrayList<EMail> emailListIn, emailListOut;
     
-    public Client(Account account) throws NamingException, RemoteException{
+    public Client(Account account) {
         this.account = account;
-        this.namingContext = new InitialContext();
+
         try{
-            server = (ServerInterface)namingContext.lookup("rmi:server");
-            server.notifyConnection(account.getAccountName());
+            try {
+                server = (ServerInterface)(new InitialContext().lookup("rmi:server"));
+                server.notifyConnection(account.getAccountName());
 
-            retrieveMessages();
-            retrieveSentMessages();
+                retrieveMessagesIn();
+                retrieveMessagesOut();
 
-        }catch(NamingException e){
-            System.out.println(e.getCause());
-            exit(1);
+                this.view = new ClientView(this);
+
+            } catch (NamingException e) {
+                launchError(String.valueOf(e.getCause()));
+            }
+
+        } catch(RemoteException e){
+            launchError(String.valueOf(e.getCause()));
         }
 
-        this.controller = new ClientController(this);
     }
 
-    public void setController(ClientController controller){
-        this.controller = controller;
+    public Account getAccount(){
+        return this.account;
     }
 
-    public ArrayList<EMail> getEmailList() {
-        return this.emailList;
+    public ArrayList<EMail> getEmailListIn() {
+        return this.emailListIn;
     }
 
-    public ArrayList<EMail> getEmailListOut() throws RemoteException {
-        return this.emailSent;
+    public ArrayList<EMail> getEmailListOut() {
+        return this.emailListOut;
     }
 
-    public void retrieveMessages() throws RemoteException {
-        this.emailList = server.getMessagesIn(this.account.getAccountName());
+    public void retrieveMessagesIn() throws RemoteException {
+        this.emailListIn = this.server.getMessagesIn(this.account.getAccountName());
 
         setChanged();
-        notifyObservers(emailList);
+        notifyObservers(emailListIn);
     }
 
-    public void retrieveSentMessages() throws RemoteException{
-        this.emailSent = this.server.getMessagesOut(this.account.getAccountName());
+    public void retrieveMessagesOut() throws RemoteException{
+        this.emailListOut = this.server.getMessagesOut(this.account.getAccountName());
 
         setChanged();
-        notifyObservers(emailSent);
+        notifyObservers(emailListOut);
     }
 
+    public Vector<Vector> populateData(int type){
+        ArrayList<EMail> emailList = null;
+
+        if (type == 0)
+            emailList = this.emailListIn;
+        else if(type == 1)
+            emailList = this.emailListOut;
+
+        Vector<Vector> tmp = new Vector<>();
+
+        for (EMail e : emailList) {
+            Vector<String> row = new Vector<>();
+
+            try {
+                if(type == 0)
+                    row.add(e.getEmailSender());
+                else if (type == 1)
+                    row.add(e.getEmailRecipient().toString());
+                row.add(e.getEmailArgument());
+                row.add(e.getEmailDate().toString());
+            } catch (RemoteException ex) {
+                System.out.println(ex.getCause());
+            }
+            tmp.add(row);
+        }
+        return tmp;
+    }
+
+    private void launchError(String s){
+        JFrame frame = new JFrame("Errore");
+        frame.setLayout(new BorderLayout());
+
+        JTextArea area = new JTextArea(s);
+        area.setEditable(false);
+
+        frame.add(area);
+        frame.setDefaultCloseOperation(3);
+        frame.setSize(500, 200);
+        frame.setVisible(true);
+    }
 }
