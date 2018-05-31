@@ -23,7 +23,7 @@ import labprogiii.interfaces.EMail;
 import static java.lang.System.exit;
 import static java.lang.System.setOut;
 
-public class ClientController implements MouseListener, ActionListener, Observer {
+class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
     ClientView view;
 
@@ -33,7 +33,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     int type;
 
-    public ClientController(Client c, ClientView view) {
+    ClientController(Client c, ClientView view) {
         this.client = c;
         this.account = client.getAccount();
 
@@ -43,11 +43,11 @@ public class ClientController implements MouseListener, ActionListener, Observer
         this.emailListOut = this.client.getEmailListOut();
     }
 
-    public int getType(){
+    int getType(){
         return this.type;
     }
 
-    public void sendMailView(){        
+    void sendMailView(){
         JFrame mailFrame = new JFrame("Write a new email");
         JPanel mail = new JPanel();
         JTextArea mailContent = new JTextArea("");

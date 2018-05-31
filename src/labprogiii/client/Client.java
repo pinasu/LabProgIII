@@ -21,7 +21,7 @@ class Client extends Observable {
     ServerInterface server;
     ArrayList<EMail> emailListIn, emailListOut;
     
-    public Client(Account account) {
+    Client(Account account) {
         this.account = account;
 
         try{
@@ -44,33 +44,33 @@ class Client extends Observable {
 
     }
 
-    public Account getAccount(){
+    Account getAccount(){
         return this.account;
     }
 
-    public ArrayList<EMail> getEmailListIn() {
+    ArrayList<EMail> getEmailListIn() {
         return this.emailListIn;
     }
 
-    public ArrayList<EMail> getEmailListOut() {
+    ArrayList<EMail> getEmailListOut() {
         return this.emailListOut;
     }
 
-    public void retrieveMessagesIn() throws RemoteException {
+    private void retrieveMessagesIn() throws RemoteException {
         this.emailListIn = this.server.getMessagesIn(this.account.getAccountName());
 
         setChanged();
         notifyObservers(emailListIn);
     }
 
-    public void retrieveMessagesOut() throws RemoteException{
+    private void retrieveMessagesOut() throws RemoteException{
         this.emailListOut = this.server.getMessagesOut(this.account.getAccountName());
 
         setChanged();
         notifyObservers(emailListOut);
     }
 
-    public Vector<Vector> populateData(int type){
+    Vector<Vector> populateData(int type){
         ArrayList<EMail> emailList = null;
 
         if (type == 0)

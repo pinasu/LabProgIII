@@ -5,9 +5,8 @@ import java.util.Date;
 import javax.naming.NamingException;
 
 public class ClientMain {
-    public static void main(String[] args) throws NamingException, RemoteException {
+    public static void main(String[] args) {
 
         new Client(new Account("gianni", new Date()));
-
     }
 }
