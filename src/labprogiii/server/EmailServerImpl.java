@@ -6,10 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import labprogiii.interfaces.EMail;
 
-/**
- *
- * @author pinasu
- */
 class EmailServerImpl extends UnicastRemoteObject implements EMail{
         String ID;
         String sender;
@@ -29,90 +25,29 @@ class EmailServerImpl extends UnicastRemoteObject implements EMail{
             this.date = new Date();
         }
 
-        public EmailServerImpl() throws RemoteException {
-            this.ID = null;
-            this.sender = null;
-            this.recipient = null;
-            this.argument = null;
-            this.text = null;
-            this.priority = 1;
-            this.date = new Date();
-        }
-        
         @Override
-        public String getEmailID() throws RemoteException {
-            return this.ID;
-        }
-
-        @Override
-        public String getEmailSender() throws RemoteException {
+        public String getEmailSender() {
             return this.sender;
         }
 
         @Override
-        public ArrayList<String> getEmailRecipient() throws RemoteException {
+        public ArrayList<String> getEmailRecipient() {
             return this.recipient;
         }
 
         @Override
-        public String getEmailArgument() throws RemoteException {
+        public String getEmailArgument() {
             return this.argument;
         }
 
         @Override
-        public String getEmailText() throws RemoteException {
+        public String getEmailText() {
             return this.text;
         }
 
         @Override
-        public int getEmailPriority() throws RemoteException {
-            return this.priority;
-        }
-
-        @Override
-        public Date getEmailDate() throws RemoteException {
+        public Date getEmailDate() {
             return this.date;
-        }
-
-        @Override
-        public void setEmailID(String ID) throws RemoteException {
-            this.ID = ID;
-        }
-
-        @Override
-        public void setEmailSender(String sender) throws RemoteException {
-            this.sender = sender;
-        }
-
-        @Override
-        public void setEmailRecipient(ArrayList<String> recipient) throws RemoteException {
-            this.recipient = recipient;
-        }
-
-        @Override
-        public void setEmailArgument(String argument) throws RemoteException {
-            this.argument = argument;
-        }
-
-        @Override
-        public void setEmailText(String text) throws RemoteException {
-            this.text = text;
-        }
-
-        @Override
-        public void setEmailPriority(int priority) throws RemoteException {
-            if(priority <= 2 || priority >= 0)
-                this.priority = priority;
-        }
-
-        @Override
-        public void setEmailDate(Date date) throws RemoteException {
-            this.date = date;
-        }
-
-        @Override
-        public void printMail() throws RemoteException {
-            System.out.println("ID: "+this.ID);
         }
  
 }

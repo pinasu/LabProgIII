@@ -15,11 +15,6 @@ import javax.naming.NamingException;
 
 import labprogiii.interfaces.EMail;
 
-
-/**
- *
- * @author pinasu
- */
 class Server extends UnicastRemoteObject implements ServerInterface {
     ServerController controller;
     Context naming;
@@ -69,7 +64,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         ArrayList<EMail> emailListIn = new ArrayList<>();
         ArrayList<EMail> emailListOut = new ArrayList<>();
 
-        String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
+        String PATH = System.getProperty("user.dir")+"\'src\'labprogiii\'server\'";
         System.out.println(PATH);
 
         //Get all mails
@@ -95,7 +90,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                                 String[] ID = m.getName().split(".csv");
 
                                 try {
-                                    Scanner in = new Scanner(new File(PATH + child.getName()+"/"+f.getName()+"/"+m.getName())).useDelimiter(";\n");
+                                    Scanner in = new Scanner(new File(PATH + child.getName()+"\'"+f.getName()+"\'"+m.getName())).useDelimiter(";/n");
                                     String sender = in.next();
 
                                     //Mail recipients

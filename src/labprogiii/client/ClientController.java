@@ -23,11 +23,6 @@ import labprogiii.interfaces.EMail;
 import static java.lang.System.exit;
 import static java.lang.System.setOut;
 
-/**
- *
- * @author pinasu
- */
-
 public class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
     ClientView view;

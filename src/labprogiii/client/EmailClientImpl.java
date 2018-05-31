@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import labprogiii.interfaces.EMail;
 
-/**
- *
- * @author pinasu
- */
 class EmailClientImpl implements EMail{
         String ID;
 

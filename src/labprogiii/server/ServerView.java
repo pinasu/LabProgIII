@@ -9,10 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**
- *
- * @author pinasu
- */
 class ServerView extends JFrame implements Observer {
     
     JTextArea textArea;

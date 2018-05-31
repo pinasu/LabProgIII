@@ -15,12 +15,7 @@ import javax.swing.*;
 
 import labprogiii.interfaces.EMail;
 
-/**
- *
- * @author pinasu
- */
-
-final class Client extends Observable {
+class Client extends Observable {
     Account account;
     ClientView view;
     ServerInterface server;
