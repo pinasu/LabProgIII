@@ -9,17 +9,20 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**
- *
- * @author pinasu
- */
 class ServerView extends JFrame implements Observer {
-    
+    ServerController controller;
+    Server server;
+
     JTextArea textArea;
     JScrollPane scrollPane;
     
-    public ServerView(ServerController controller){
+    ServerView(Server server){
         super("Server Log");
+
+        this.server = server;
+        this.controller = new ServerController(server, this);
+
+
         this.textArea = new JTextArea("All Server events will be registered here.");
         this.textArea.setEditable(false);
         this.scrollPane = new JScrollPane(textArea);
@@ -29,7 +32,7 @@ class ServerView extends JFrame implements Observer {
         this.setSize(600, 300);
     }
     
-    public void printLog(String message) {
+    void printLog(String message) {
         DateFormat dateFormat = new SimpleDateFormat("[HH:mm:ss] ");
         Date date = new Date();
         this.textArea.setText(this.textArea.getText()+"\n"+dateFormat.format(date)+message);

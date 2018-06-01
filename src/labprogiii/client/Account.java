@@ -2,33 +2,17 @@ package labprogiii.client;
 
 import java.util.Date;
 
-/**
- *
- * @author pinasu
- */
-    class Account{
-        String accountName;
-        Date creationDate;
-        
-        public Account(String name, Date date){
-            this.accountName = name;
-            this.creationDate = date;
-        }
-        
-        public String getAccountName() {
-            return this.accountName;
-        }
+class Account{
+    String accountName;
+    Date creationDate;
 
-        public Date getAccountdate() {
-            return this.creationDate;
-        }
-        
-        public void setAccountName(String name) {
-            this.accountName = name;
-        }
-        
-        public void setAccountDate(Date date) {
-            this.creationDate = date;
-        }
-        
+    Account(String name, Date date){
+        this.accountName = name;
+        this.creationDate = date;
     }
+
+    String getAccountName() {
+        return this.accountName;
+    }
+
+}

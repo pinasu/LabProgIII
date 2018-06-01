@@ -1,14 +1,32 @@
 package labprogiii.client;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
 import java.util.*;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
 import labprogiii.interfaces.EMail;
+
+import static java.lang.System.exit;
+import static java.lang.System.setOut;
+
+/**
+ *
+ * @author pinasu
+ */
 
 public class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
@@ -34,30 +52,84 @@ public class ClientController implements MouseListener, ActionListener, Observer
         return this.type;
     }
 
+    public void sendMailView(){        
+        JFrame mailFrame = new JFrame("Write a new email");
+        JPanel mail = new JPanel();
+        JTextArea mailContent = new JTextArea("");
+        JButton sendBtn = new JButton("Send");
+        JPanel buttonPanel = new JPanel();
+        JTextArea recipientMail = new JTextArea("Insert recipient here");
+        JTextArea argumentMail = new JTextArea("Insert argument here");
+        Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
+
+        mailContent.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        mail.setLayout(new BorderLayout(5,5));
+        buttonPanel.setLayout(new BorderLayout(5,5));
+
+        buttonPanel.add(recipientMail, BorderLayout.PAGE_START);
+        buttonPanel.add(argumentMail, BorderLayout.CENTER);
+        recipientMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        argumentMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        recipientMail.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent ev){
+                recipientMail.setText("");
+            }
+        });
+      
+        argumentMail.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent ev){
+                argumentMail.setText("");
+            }
+        }); 
+        
+        recipientMail.getDocument().addDocumentListener(new DocumentListener(){
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                sendBtn.setEnabled(true);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {}
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {}
+            
+        });
+        
+        mailContent.setLineWrap(true);
+        mail.add(mailContent, BorderLayout.CENTER);
+
+        mailFrame.setSize(700, 400);
+        mail.add(buttonPanel, BorderLayout.NORTH);
+        
+        sendBtn.setSize(50, 100);
+        sendBtn.setEnabled(false);
+        
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(sendBtn);
+        
+        mail.add(bottomPanel, BorderLayout.SOUTH);
+
+        mailFrame.add(mail);
+
+        mailFrame.setLocation(dim.width/2-mailFrame.getSize().width/2, dim.height/2-mailFrame.getSize().height/2);
+        mailFrame.setVisible(true);
+    }
+
     @Override
     public void actionPerformed(ActionEvent ev) {
         if (ev.getActionCommand().equals("New Email"))
-            view.newMailView();
+            sendMailView();
+        else if (ev.getActionCommand().equals("Sent"))
+            view.showMailList(this.type = view.SENT_MESSAGES);
 
-        else if (ev.getActionCommand().equals("Sent")) {
-            this.type = view.SENT_MESSAGES;
+        else if (ev.getActionCommand().equals("Received"))
+            view.showMailList(this.type = view.RECEIVED_MESSAGES);
 
-            if(view.title.getText().equals("Received"))
-                view.changeTitle("Sent", this.type);
-
-            view.showMailList(this.type);
-        }
-
-        else if (ev.getActionCommand().equals("Received")) {
-
-            this.type = view.RECEIVED_MESSAGES;
-
-            if(view.title.getText().equals("Sent"))
-                view.changeTitle("Received", this.type);
-
-            view.showMailList(this.type);
-
-        }
     }
     
     @Override
@@ -71,11 +143,10 @@ public class ClientController implements MouseListener, ActionListener, Observer
             emailList = this.emailListOut;
 
         try {
-            if(view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
-                view.showMail(emailList.get(view.getTable().getSelectedRow()));
-
-            } catch (RemoteException ex) {
-                System.out.println(ex.getCause());
+            if(view.table.getSelectedRow() < emailList.size() && view.table.getSelectedRow() != -1)
+                view.showMail(emailList.get(view.table.getSelectedRow()));
+        } catch (RemoteException ex) {
+            System.out.println(ex.getCause());
         }
     }
     
@@ -99,4 +170,5 @@ public class ClientController implements MouseListener, ActionListener, Observer
     @Override
     public void mouseExited(MouseEvent e) {
     }
+
 }

@@ -38,7 +38,7 @@ class ClientView extends JFrame {
 
     MyTableModel model;
 
-    public ClientView(Client c) {
+    ClientView(Client c) {
 
         this.client = c;
         this.controller = new ClientController(c, this);
@@ -73,7 +73,7 @@ class ClientView extends JFrame {
         return this.table;
     }
 
-    public void showMail(EMail e) throws RemoteException{
+    void showMail(EMail e) throws RemoteException{
         JFrame frame = new JFrame();
         if(controller.getType() == SENT_MESSAGES)
             frame.setTitle("Email to "+e.getEmailRecipient().toString());
@@ -199,7 +199,7 @@ class ClientView extends JFrame {
         mailFrame.setVisible(true);
     }
 
-    public class MyTableModel extends DefaultTableModel {
+    class MyTableModel extends DefaultTableModel {
 
         private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
             super(data, columnNames);
