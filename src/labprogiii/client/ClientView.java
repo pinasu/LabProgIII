@@ -1,9 +1,14 @@
 package labprogiii.client;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.util.Vector;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
@@ -11,6 +16,8 @@ import labprogiii.interfaces.EMail;
 class ClientView extends JFrame {
     final int RECEIVED_MESSAGES = 0;
     final int SENT_MESSAGES = 1;
+
+    String v = "From";
 
     JPanel menu;
     JButton sentButton, receivedButton, newMailButton;
@@ -34,12 +41,20 @@ class ClientView extends JFrame {
     public ClientView(Client c) {
 
         this.client = c;
-
         this.controller = new ClientController(c, this);
+
+        this.setLayout(new BorderLayout());
 
         this.setTitle(client.getAccount().getAccountName()+"@sasi.com");
 
-        this.menu = newMenu();
+        this.extern = new JPanel();
+        this.extern.setLayout(new BorderLayout());
+
+        this.title = new JLabel("Received");
+        this.extern.add(this.title, BorderLayout.NORTH);
+
+        this.add(this.menu = newMenu(), BorderLayout.WEST);
+        this.add(this.extern, BorderLayout.CENTER);
 
         showMailList(RECEIVED_MESSAGES);
 
@@ -50,6 +65,12 @@ class ClientView extends JFrame {
         this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         this.setVisible(true);
 
+        this.table.addMouseListener(this.controller);
+
+    }
+
+    public JTable getTable(){
+        return this.table;
     }
 
     public void showMail(EMail e) throws RemoteException{
@@ -72,31 +93,18 @@ class ClientView extends JFrame {
         frame.setVisible(true);
     }
 
+    void changeTitle(String title, int type){
+        this.title.setText(title);
+
+        if(type == RECEIVED_MESSAGES)
+            this.v = "From";
+        else if (type == SENT_MESSAGES)
+            this.v = "To";
+
+    }
+
     void showMailList(int type) {
-        this.data = null;
-
-        this.setLayout(new BorderLayout());
-
-        this.title = new JLabel();
-
-        this.add(this.menu, BorderLayout.WEST);
-
-        this.extern = new JPanel();
-        this.extern.setLayout(new BorderLayout());
-        this.extern.add(this.title, BorderLayout.NORTH);
-
-        this.add(this.extern, BorderLayout.CENTER);
         Vector<String> columnNames;
-        String v = "";
-
-        if (type == 0){
-            this.title.setText("Received");
-            v = "From";
-        }
-        else if(type == 1){
-            this.title.setText("Sent");
-            v = "To";
-        }
 
         this.data = this.client.populateData(type);
 
@@ -104,7 +112,7 @@ class ClientView extends JFrame {
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
         columnNames = new Vector<>();
-        columnNames.add(v);
+        columnNames.add(this.v);
         columnNames.add("Argument");
         columnNames.add("Date");
 
@@ -113,7 +121,7 @@ class ClientView extends JFrame {
         this.table = new JTable(model);
         this.table.setShowGrid(false);
         this.table.setFillsViewportHeight(true);
-        this.table.setRowHeight(30);
+        this.table.setRowHeight(25);
         this.table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
@@ -121,8 +129,74 @@ class ClientView extends JFrame {
         this.body = new JScrollPane(this.table);
         this.extern.add(body);
 
-        this.table.addMouseListener(this.controller);
+    }
 
+    public void newMailView(){
+        JFrame mailFrame = new JFrame("Write a new email");
+        JPanel mail = new JPanel();
+        JTextArea mailContent = new JTextArea("");
+        JButton sendBtn = new JButton("Send");
+        JPanel buttonPanel = new JPanel();
+        JTextArea recipientMail = new JTextArea("Insert recipient here");
+        JTextArea argumentMail = new JTextArea("Insert argument here");
+        Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
+
+        mailContent.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        mail.setLayout(new BorderLayout(5,5));
+        buttonPanel.setLayout(new BorderLayout(5,5));
+
+        buttonPanel.add(recipientMail, BorderLayout.PAGE_START);
+        buttonPanel.add(argumentMail, BorderLayout.CENTER);
+        recipientMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        argumentMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+
+        recipientMail.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent ev){
+                recipientMail.setText("");
+            }
+        });
+
+        argumentMail.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent ev){
+                argumentMail.setText("");
+            }
+        });
+
+        recipientMail.getDocument().addDocumentListener(new DocumentListener(){
+            @Override
+            public void insertUpdate(DocumentEvent de) {
+                sendBtn.setEnabled(true);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent de) {}
+
+            @Override
+            public void changedUpdate(DocumentEvent de) {}
+
+        });
+
+        mailContent.setLineWrap(true);
+        mail.add(mailContent, BorderLayout.CENTER);
+
+        mailFrame.setSize(700, 400);
+        mail.add(buttonPanel, BorderLayout.NORTH);
+
+        sendBtn.setSize(50, 100);
+        sendBtn.setEnabled(false);
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(sendBtn);
+
+        mail.add(bottomPanel, BorderLayout.SOUTH);
+
+        mailFrame.add(mail);
+
+        mailFrame.setLocation(dim.width/2-mailFrame.getSize().width/2, dim.height/2-mailFrame.getSize().height/2);
+        mailFrame.setVisible(true);
     }
 
     public class MyTableModel extends DefaultTableModel {
