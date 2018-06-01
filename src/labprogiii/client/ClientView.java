@@ -118,17 +118,17 @@ class ClientView extends JFrame {
 
         this.model = new MyTableModel(this.data, columnNames);
 
-        this.table = new JTable(model);
+        this.table = new JTable(this.model);
         this.table.setShowGrid(false);
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(25);
+
         this.table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
 
         this.body = new JScrollPane(this.table);
         this.extern.add(body);
-
     }
 
     public void newMailView(){

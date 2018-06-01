@@ -10,7 +10,6 @@ import java.rmi.RemoteException;
 import java.util.*;
 import labprogiii.interfaces.EMail;
 
-
 public class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
     ClientView view;
@@ -50,6 +49,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
         }
 
         else if (ev.getActionCommand().equals("Received")) {
+
             this.type = view.RECEIVED_MESSAGES;
 
             if(view.title.getText().equals("Sent"))
@@ -74,9 +74,8 @@ public class ClientController implements MouseListener, ActionListener, Observer
             if(view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
                 view.showMail(emailList.get(view.getTable().getSelectedRow()));
 
-
             } catch (RemoteException ex) {
-            System.out.println(ex.getCause());
+                System.out.println(ex.getCause());
         }
     }
     
@@ -100,5 +99,4 @@ public class ClientController implements MouseListener, ActionListener, Observer
     @Override
     public void mouseExited(MouseEvent e) {
     }
-
 }
