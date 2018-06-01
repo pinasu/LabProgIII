@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import javax.naming.Context;
@@ -14,14 +15,18 @@ import javax.naming.NamingException;
 
 import labprogiii.interfaces.EMail;
 
-public class Server extends UnicastRemoteObject implements ServerInterface {
-    ServerView view;
 
+/**
+ *
+ * @author pinasu
+ */
+class Server extends UnicastRemoteObject implements ServerInterface {
+    ServerController controller;
     Context naming;
     HashMap<String, ServerInbox> inboxMap;
 
     public Server() throws RemoteException, NamingException {
-        this.view  = new ServerView(this);
+        this.controller = new ServerController(this);
 
         LocateRegistry.createRegistry(1099);
 
@@ -37,24 +42,24 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 
         setUpInbox(accountList);
 
-        view.printLog("Waiting for clients...");
+        controller.printLog("Waiting for clients...");
     }
 
     public void notifyConnection(String account){
-        this.view.printLog("User "+account+" has connected.");
+        this.controller.printLog("User "+account+" has connected.");
     }
 
-    public ArrayList<EMail> getMessagesIn(String account) {
+    public ArrayList<EMail> getMessagesIn(String account) throws RemoteException{
 
-        this.view.printLog("User "+account+" retrieved his messages.");
+        this.controller.printLog("User "+account+" retrieved his messages.");
 
         return(this.inboxMap.get(account).getMessagesIn());
 
     }
 
-    public ArrayList<EMail> getMessagesOut(String account) {
+    public ArrayList<EMail> getMessagesOut(String account) throws RemoteException{
 
-        this.view.printLog("User "+account+" retrieved his sent messages.");
+        this.controller.printLog("User "+account+" retrieved his sent messages.");
 
         return(this.inboxMap.get(account).getMessagesOut());
 
@@ -64,7 +69,7 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
         ArrayList<EMail> emailListIn = new ArrayList<>();
         ArrayList<EMail> emailListOut = new ArrayList<>();
 
-        String PATH = System.getProperty("user.dir")+"\'src\'labprogiii\'server\'";
+        String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
         System.out.println(PATH);
 
         //Get all mails
@@ -90,7 +95,7 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
                                 String[] ID = m.getName().split(".csv");
 
                                 try {
-                                    Scanner in = new Scanner(new File(PATH + child.getName()+"\'"+f.getName()+"\'"+m.getName())).useDelimiter(";/n");
+                                    Scanner in = new Scanner(new File(PATH + child.getName()+"/"+f.getName()+"/"+m.getName())).useDelimiter(";\n");
                                     String sender = in.next();
 
                                     //Mail recipients
@@ -116,7 +121,7 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
                                     in.close();
 
                                 } catch (FileNotFoundException e) {
-                                    this.view.printLog(e.getMessage());
+                                    this.controller.printLog(e.getMessage());
                                 }
                             }
                         }
@@ -129,7 +134,7 @@ public class Server extends UnicastRemoteObject implements ServerInterface {
 
             inboxMap.put(a.getAccountName(), inbox);
 
-            this.view.printLog("Inbox for account "+a.getAccountName()+" created.");
+            this.controller.printLog("Inbox for account "+a.getAccountName()+" created.");
         }
     }
 

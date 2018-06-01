@@ -1,12 +1,14 @@
 package labprogiii.server;
 
-class ServerController {
-    Server server;
-    ServerView view;
+public class ServerController {
+    private ServerView view;
 
-    ServerController(Server server, ServerView view) {
-        this.server = server;
-        this.view = view;
+    public ServerController(Server server) {
+        this.view = new ServerView(this);
+    }
+
+    public void printLog(String log){
+        this.view.printLog(log);
     }
 
 }

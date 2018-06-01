@@ -1,23 +1,28 @@
 package labprogiii.server;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 
 import labprogiii.interfaces.EMail;
 
+/**
+ *
+ * @author pinasu
+ */
 class ServerInbox {
     ArrayList<EMail> messagesIn;
     ArrayList<EMail> messagesOut;
 
-    ServerInbox(ArrayList<EMail> emailListIn, ArrayList<EMail> emailListOut) {
+    public ServerInbox(ArrayList<EMail> emailListIn, ArrayList<EMail> emailListOut) throws RemoteException {
         this.messagesIn = emailListIn;
         this.messagesOut = emailListOut;
     }
 
-    ArrayList<EMail> getMessagesIn() {
+    public ArrayList<EMail> getMessagesIn() {
         return this.messagesIn;
     }
 
-    ArrayList<EMail> getMessagesOut() {
+    public ArrayList<EMail> getMessagesOut() {
         return this.messagesOut;
     }
 

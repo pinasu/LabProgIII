@@ -1,5 +1,6 @@
 package labprogiii.client;
 
+import static java.lang.System.exit;
 import labprogiii.interfaces.ServerInterface;
 
 import java.awt.*;
@@ -7,11 +8,17 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Vector;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.*;
 
 import labprogiii.interfaces.EMail;
+
+/**
+ *
+ * @author pinasu
+ */
 
 final class Client extends Observable {
     Account account;
@@ -85,7 +92,7 @@ final class Client extends Observable {
                 if(type == 0)
                     row.add(e.getEmailSender());
                 else if (type == 1)
-                    row.add(e.getEmailRecipient().toString().replace("[", "").replace("]",""));
+                    row.add(e.getEmailRecipient().toString());
 
                 row.add(e.getEmailArgument());
                 row.add(e.getEmailDate().toString());
