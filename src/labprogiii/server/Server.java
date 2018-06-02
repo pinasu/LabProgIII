@@ -15,11 +15,6 @@ import javax.naming.NamingException;
 
 import labprogiii.interfaces.EMail;
 
-
-/**
- *
- * @author pinasu
- */
 class Server extends UnicastRemoteObject implements ServerInterface {
     ServerController controller;
     Context naming;

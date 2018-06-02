@@ -1,26 +1,18 @@
 package labprogiii.client;
 
-import static java.lang.System.exit;
 import labprogiii.interfaces.ServerInterface;
-
 import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Vector;
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.*;
 
 import labprogiii.interfaces.EMail;
 
-/**
- *
- * @author pinasu
- */
-
-final class Client extends Observable {
+class Client extends Observable {
     Account account;
     ClientView view;
     ServerInterface server;

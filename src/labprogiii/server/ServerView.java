@@ -9,12 +9,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**
- *
- * @author pinasu
- */
 class ServerView extends JFrame implements Observer {
-    
+    ServerController controller;
     JTextArea textArea;
     JScrollPane scrollPane;
     
@@ -27,6 +23,8 @@ class ServerView extends JFrame implements Observer {
         this.setVisible(true);
         this.setDefaultCloseOperation(3);
         this.setSize(600, 300);
+
+        this.controller = controller;
     }
     
     public void printLog(String message) {
