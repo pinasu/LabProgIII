@@ -84,7 +84,7 @@ class Client extends Observable {
                 if(type == 0)
                     row.add(e.getEmailSender());
                 else if (type == 1)
-                    row.add(e.getEmailRecipient().toString());
+                    row.add(e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
 
                 row.add(e.getEmailArgument());
                 row.add(e.getEmailDate().toString());

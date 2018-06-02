@@ -20,7 +20,6 @@ class ClientView extends JFrame {
     String v = "From";
 
     JPanel menu;
-    JButton sentButton, receivedButton, newMailButton;
 
     JPanel extern;
     JLabel title;
@@ -116,7 +115,7 @@ class ClientView extends JFrame {
         columnNames.add(this.v);
         columnNames.add("Argument");
         columnNames.add("Date");
-    
+
         this.table.setModel(new MyTableModel(this.data, columnNames));
 
         this.table.setShowGrid(false);
@@ -125,6 +124,7 @@ class ClientView extends JFrame {
         this.table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+        this.table.getTableHeader().setReorderingAllowed(false);
 
         this.table.addMouseListener(this.controller);
 
@@ -212,13 +212,27 @@ class ClientView extends JFrame {
 
     JPanel newMenu(){
         JPanel menu = new JPanel();
-        menu.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+
+        menu.setBackground(Color.RED);
+
+//        menu.setBorder(BorderFactory.createEmptyBorder(20,10,10,10));
 
         menu.setLayout(new BoxLayout(menu, BoxLayout.PAGE_AXIS));
 
-        menu.add(receivedButton = new JButton("Received"));
-        menu.add(sentButton = new JButton("Sent"));
-        menu.add(newMailButton = new JButton("New Email"));
+        JButton receivedButton = new JButton("Received");
+        JButton sentButton = new JButton("Sent");
+        JButton newMailButton = new JButton("New Email");
+
+        Dimension btnDim = new Dimension(150, 0);
+
+        receivedButton.setPreferredSize(btnDim);
+        sentButton.setPreferredSize(btnDim);
+        newMailButton.setPreferredSize(btnDim);
+
+        menu.add(receivedButton);
+        menu.add(sentButton);
+        menu.add(newMailButton);
+
 
         newMailButton.addActionListener(this.controller);
         sentButton.addActionListener(this.controller);

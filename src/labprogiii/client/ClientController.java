@@ -73,10 +73,9 @@ public class ClientController implements MouseListener, ActionListener {
             emailList = this.emailListOut;
 
         try {
-            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1){
-                System.out.println("size: " + emailList.size() + "\nrow: " + view.getTable().getSelectedRow());
+            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
                 view.showMail(emailList.get(view.getTable().getSelectedRow()));
-           }
+
         } catch (RemoteException ex) {
             System.out.println(ex.getCause());
         }
