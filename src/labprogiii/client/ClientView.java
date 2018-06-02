@@ -65,7 +65,7 @@ class ClientView extends JFrame {
         this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         this.setVisible(true);
 
-        this.table.addMouseListener(this.controller);
+        //this.table.addMouseListener(this.controller);
 
     }
 

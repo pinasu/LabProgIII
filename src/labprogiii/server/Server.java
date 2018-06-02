@@ -22,9 +22,11 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
     public Server() throws RemoteException, NamingException {
         this.controller = new ServerController(this);
-
-        LocateRegistry.createRegistry(1099);
-
+        try {
+            LocateRegistry.createRegistry(1099);
+        }catch(Exception e){
+            controller.printLog("Error."+e.getCause());
+        }
         this.inboxMap = new HashMap();
 
         this.naming = new InitialContext();
@@ -44,7 +46,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         this.controller.printLog("User "+account+" has connected.");
     }
 
-    public ArrayList<EMail> getMessagesIn(String account) throws RemoteException{
+    public ArrayList<EMail> getMessagesIn(String account)   {
 
         this.controller.printLog("User "+account+" retrieved his messages.");
 
@@ -52,7 +54,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
     }
 
-    public ArrayList<EMail> getMessagesOut(String account) throws RemoteException{
+    public ArrayList<EMail> getMessagesOut(String account) {
 
         this.controller.printLog("User "+account+" retrieved his sent messages.");
 

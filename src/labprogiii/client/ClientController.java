@@ -11,7 +11,7 @@ import java.util.*;
 import labprogiii.interfaces.EMail;
 
 
-public class ClientController implements MouseListener, ActionListener, Observer {
+public class ClientController implements MouseListener, ActionListener {
     Client client;
     ClientView view;
 
@@ -59,7 +59,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
         }
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent ev) {
         ArrayList<EMail> emailList = null;
@@ -74,15 +74,10 @@ public class ClientController implements MouseListener, ActionListener, Observer
             if(view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
                 view.showMail(emailList.get(view.getTable().getSelectedRow()));
 
-
             } catch (RemoteException ex) {
             System.out.println(ex.getCause());
         }
-    }
-    
-    @Override
-    public void update(Observable o, Object arg) {
-        //view.setEmailList((ArrayList<EMail>) arg);
+        view.getTable().clearSelection();
     }
 
     @Override
@@ -100,5 +95,9 @@ public class ClientController implements MouseListener, ActionListener, Observer
     @Override
     public void mouseExited(MouseEvent e) {
     }
-
+    /*
+    @Override
+    public void update(Observable o, Object arg) {
+        //view.setEmailList((ArrayList<EMail>) arg);
+    }*/
 }
