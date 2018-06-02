@@ -10,6 +10,8 @@ import java.rmi.RemoteException;
 import java.util.*;
 import labprogiii.interfaces.EMail;
 
+import javax.swing.table.DefaultTableModel;
+
 
 public class ClientController implements MouseListener, ActionListener {
     Client client;
@@ -62,7 +64,7 @@ public class ClientController implements MouseListener, ActionListener {
 
     @Override
     public void mouseClicked(MouseEvent ev) {
-        ArrayList<EMail> emailList = null;
+        ArrayList<EMail> emailList = new ArrayList<>();
 
         if(this.type == view.RECEIVED_MESSAGES)
             emailList = this.emailListIn;
@@ -71,10 +73,11 @@ public class ClientController implements MouseListener, ActionListener {
             emailList = this.emailListOut;
 
         try {
-            if(view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
+            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1){
+                System.out.println("size: " + emailList.size() + "\nrow: " + view.getTable().getSelectedRow());
                 view.showMail(emailList.get(view.getTable().getSelectedRow()));
-
-            } catch (RemoteException ex) {
+           }
+        } catch (RemoteException ex) {
             System.out.println(ex.getCause());
         }
         view.getTable().clearSelection();
@@ -95,6 +98,7 @@ public class ClientController implements MouseListener, ActionListener {
     @Override
     public void mouseExited(MouseEvent e) {
     }
+
     /*
     @Override
     public void update(Observable o, Object arg) {

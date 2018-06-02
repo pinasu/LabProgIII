@@ -36,8 +36,6 @@ class ClientView extends JFrame {
 
     ClientController controller;
 
-    MyTableModel model;
-
     public ClientView(Client c) {
 
         this.client = c;
@@ -50,6 +48,8 @@ class ClientView extends JFrame {
         this.extern = new JPanel();
         this.extern.setLayout(new BorderLayout());
 
+        this.table = new JTable();
+
         this.title = new JLabel("Received");
         this.extern.add(this.title, BorderLayout.NORTH);
 
@@ -58,14 +58,15 @@ class ClientView extends JFrame {
 
         showMailList(RECEIVED_MESSAGES);
 
+        this.body = new JScrollPane(this.table);
+        this.extern.add(body);
+
         this.setDefaultCloseOperation(3);
         this.setSize(900, 600);
 
         this.dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
         this.setVisible(true);
-
-        //this.table.addMouseListener(this.controller);
 
     }
 
@@ -115,10 +116,9 @@ class ClientView extends JFrame {
         columnNames.add(this.v);
         columnNames.add("Argument");
         columnNames.add("Date");
+    
+        this.table.setModel(new MyTableModel(this.data, columnNames));
 
-        this.model = new MyTableModel(this.data, columnNames);
-
-        this.table = new JTable(model);
         this.table.setShowGrid(false);
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(25);
@@ -126,8 +126,7 @@ class ClientView extends JFrame {
         this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
 
-        this.body = new JScrollPane(this.table);
-        this.extern.add(body);
+        this.table.addMouseListener(this.controller);
 
     }
 
@@ -203,6 +202,7 @@ class ClientView extends JFrame {
 
         private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
             super(data, columnNames);
+
         }
         @Override
         public boolean isCellEditable(int row, int column) {
