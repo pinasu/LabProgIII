@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import javax.naming.Context;
@@ -67,7 +66,6 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         ArrayList<EMail> emailListOut = new ArrayList<>();
 
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
-        System.out.println(PATH);
 
         //Get all mails
         File dir = new File(PATH);

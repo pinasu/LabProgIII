@@ -16,6 +16,8 @@ class ServerView extends JFrame implements Observer {
     
     public ServerView(ServerController controller){
         super("Server Log");
+        this.getForeground();
+
         this.textArea = new JTextArea("All Server events will be registered here.");
         this.textArea.setEditable(false);
         this.scrollPane = new JScrollPane(textArea);

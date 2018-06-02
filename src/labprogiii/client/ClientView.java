@@ -58,6 +58,8 @@ class ClientView extends JFrame {
         showMailList(RECEIVED_MESSAGES);
 
         this.body = new JScrollPane(this.table);
+        this.body.setBorder(BorderFactory.createLineBorder (Color.GRAY));
+        this.body.setPreferredSize(new Dimension(0,this.getHeight()-20));
         this.extern.add(body);
 
         this.setDefaultCloseOperation(3);
@@ -76,7 +78,7 @@ class ClientView extends JFrame {
     public void showMail(EMail e) throws RemoteException{
         JFrame frame = new JFrame();
         if(controller.getType() == SENT_MESSAGES)
-            frame.setTitle("Email to "+e.getEmailRecipient().toString());
+            frame.setTitle("Email to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
         else if(controller.getType() == RECEIVED_MESSAGES)
             frame.setTitle("Email from "+e.getEmailSender());
 
@@ -213,24 +215,20 @@ class ClientView extends JFrame {
     JPanel newMenu(){
         JPanel menu = new JPanel();
 
-        menu.setBackground(Color.RED);
-
-//        menu.setBorder(BorderFactory.createEmptyBorder(20,10,10,10));
-
         menu.setLayout(new BoxLayout(menu, BoxLayout.PAGE_AXIS));
 
         JButton receivedButton = new JButton("Received");
         JButton sentButton = new JButton("Sent");
         JButton newMailButton = new JButton("New Email");
 
-        Dimension btnDim = new Dimension(150, 0);
-
-        receivedButton.setPreferredSize(btnDim);
-        sentButton.setPreferredSize(btnDim);
-        newMailButton.setPreferredSize(btnDim);
+        receivedButton.setMargin(new Insets(10,10,10,10));
+        sentButton.setMargin(new Insets(10,10,10,10));
+        newMailButton.setMargin(new Insets(10,10,10,10));
 
         menu.add(receivedButton);
+        menu.add(Box.createRigidArea(new Dimension(5,5)));
         menu.add(sentButton);
+        menu.add(Box.createRigidArea(new Dimension(5,5)));
         menu.add(newMailButton);
 
 
