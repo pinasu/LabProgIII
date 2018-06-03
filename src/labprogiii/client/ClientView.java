@@ -36,6 +36,17 @@ class ClientView extends JFrame {
     ClientController controller;
 
     public ClientView(Client c) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
 
         this.client = c;
         this.controller = new ClientController(c, this);
@@ -53,13 +64,12 @@ class ClientView extends JFrame {
         this.extern.add(this.title, BorderLayout.NORTH);
 
         this.add(this.menu = newMenu(), BorderLayout.WEST);
+
         this.add(this.extern, BorderLayout.CENTER);
 
         showMailList(RECEIVED_MESSAGES);
 
         this.body = new JScrollPane(this.table);
-        this.body.setBorder(BorderFactory.createLineBorder (Color.GRAY));
-        this.body.setPreferredSize(new Dimension(0,this.getHeight()-20));
         this.extern.add(body);
 
         this.setDefaultCloseOperation(3);
@@ -78,7 +88,7 @@ class ClientView extends JFrame {
     public void showMail(EMail e) throws RemoteException{
         JFrame frame = new JFrame();
         if(controller.getType() == SENT_MESSAGES)
-            frame.setTitle("Email to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
+            frame.setTitle("Email sent to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
         else if(controller.getType() == RECEIVED_MESSAGES)
             frame.setTitle("Email from "+e.getEmailSender());
 
@@ -213,30 +223,34 @@ class ClientView extends JFrame {
     }
 
     JPanel newMenu(){
+        JPanel ext = new JPanel();
         JPanel menu = new JPanel();
 
-        menu.setLayout(new BoxLayout(menu, BoxLayout.PAGE_AXIS));
+        menu.setLayout(new GridLayout(3,0,0,5));
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridheight = 1;
 
         JButton receivedButton = new JButton("Received");
+        c.gridy = 0;
+        menu.add(receivedButton, c);
+
         JButton sentButton = new JButton("Sent");
+        c.gridy = 1;
+        menu.add(sentButton, c);
+
         JButton newMailButton = new JButton("New Email");
+        c.gridy = 2;
+        menu.add(newMailButton, c);
 
-        receivedButton.setMargin(new Insets(10,10,10,10));
-        sentButton.setMargin(new Insets(10,10,10,10));
-        newMailButton.setMargin(new Insets(10,10,10,10));
-
-        menu.add(receivedButton);
-        menu.add(Box.createRigidArea(new Dimension(5,5)));
-        menu.add(sentButton);
-        menu.add(Box.createRigidArea(new Dimension(5,5)));
-        menu.add(newMailButton);
-
+        this.title.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
 
         newMailButton.addActionListener(this.controller);
         sentButton.addActionListener(this.controller);
         receivedButton.addActionListener(this.controller);
 
-        return menu;
+        ext.add(menu);
+        ext.setBorder(BorderFactory.createEmptyBorder(15,3,3,3));
+        return ext;
     }
 
 }

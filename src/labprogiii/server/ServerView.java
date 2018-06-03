@@ -5,9 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 
 class ServerView extends JFrame implements Observer {
     ServerController controller;
@@ -16,7 +14,17 @@ class ServerView extends JFrame implements Observer {
     
     public ServerView(ServerController controller){
         super("Server Log");
-        this.getForeground();
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
 
         this.textArea = new JTextArea("All Server events will be registered here.");
         this.textArea.setEditable(false);
