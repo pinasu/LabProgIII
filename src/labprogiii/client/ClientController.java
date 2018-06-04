@@ -7,19 +7,26 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import labprogiii.interfaces.EMail;
 
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 
-public class ClientController implements MouseListener, ActionListener {
+public class ClientController implements MouseListener, ActionListener, Observer {
     Client client;
     ClientView view;
 
     Account account;
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     ArrayList<EMail> emailListIn, emailListOut;
+
+    NewMailView answer;
+
+    EMail currentMail;
+
+    int emailID = 4;
 
     int type;
 
@@ -39,8 +46,10 @@ public class ClientController implements MouseListener, ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent ev) {
-        if (ev.getActionCommand().equals("New Email"))
-            view.newMailView();
+        if (ev.getActionCommand().equals("New Email")) {
+            this.answer = view.newMailView();
+
+        }
 
         else if (ev.getActionCommand().equals("Sent")) {
             this.type = view.SENT_MESSAGES;
@@ -60,6 +69,35 @@ public class ClientController implements MouseListener, ActionListener {
             view.showMailList(this.type);
 
         }
+
+        else if(ev.getActionCommand().equals(("Answer"))){
+            try {
+                this.answer = view.newMailView(this.currentMail);
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        else if(ev.getActionCommand().equals("Send")){
+            try {
+                ArrayList<String> recipients = new ArrayList();
+                String[] splitted = this.answer.getRecipient().split(",");
+
+                for (String s : splitted)
+                    recipients.add(s.replace(",", ""));
+
+                this.currentMail = new EmailClientImpl(emailID++, account.getAccountName(), recipients, this.answer.getArgument(), this.answer.getContent(),1,  new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+
+                client.getEmailListOut().add(this.currentMail);
+                client.sendMail(this.currentMail);
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            this.answer.setVisible(false);
+            this.answer.dispose();
+        }
     }
 
     @Override
@@ -73,8 +111,10 @@ public class ClientController implements MouseListener, ActionListener {
             emailList = this.emailListOut;
 
         try {
-            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1)
-                view.showMail(emailList.get(view.getTable().getSelectedRow()));
+            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1){
+                this.currentMail = emailList.get(view.getTable().getSelectedRow());
+                view.showMail(currentMail);
+            }
 
         } catch (RemoteException ex) {
             System.out.println(ex.getCause());
@@ -96,6 +136,11 @@ public class ClientController implements MouseListener, ActionListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
     }
 
     /*

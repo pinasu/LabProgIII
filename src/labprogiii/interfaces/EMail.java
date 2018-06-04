@@ -15,7 +15,11 @@ public interface EMail extends Remote{
     
     String getEmailText() throws RemoteException;
 
-    Date getEmailDate() throws RemoteException;
+    int getEmailID() throws RemoteException;
+
+    String getEmailDate() throws RemoteException;
+
+    int getEmailPriority() throws RemoteException;
 
 }
 

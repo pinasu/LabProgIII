@@ -11,4 +11,7 @@ public interface ServerInterface extends Remote {
     ArrayList<EMail> getMessagesOut(String account) throws RemoteException;
 
     void notifyConnection(String account) throws RemoteException;
+
+    int sendMail(String account, EMail e) throws RemoteException;
+
 }

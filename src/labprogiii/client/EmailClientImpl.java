@@ -1,12 +1,13 @@
 package labprogiii.client;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import labprogiii.interfaces.EMail;
 
-class EmailClientImpl implements EMail{
-        String ID;
+class EmailClientImpl implements EMail, Serializable {
+        int ID;
 
         String sender;
 
@@ -18,41 +19,43 @@ class EmailClientImpl implements EMail{
 
         int priority;
 
-        Date date;
+        String date;
         
-        public EmailClientImpl(String ID, String sender, ArrayList<String> recipient, String argument, String text) throws RemoteException{
+        public EmailClientImpl(int ID, String sender, ArrayList<String> recipient, String argument, String text, int priority, String date){
             this.ID = ID;
             this.sender = sender;
             this.recipient = recipient;
             this.argument = argument;
             this.text = text;
-            this.priority = 1;
-            this.date = new Date();
+            this.priority = priority;
+            this.date = date;
         }
 
-        @Override
-        public String getEmailSender() throws RemoteException{
+        public String getEmailSender(){
             return this.sender;
         }
 
-        @Override
-        public ArrayList<String> getEmailRecipient() throws RemoteException{
+        public ArrayList<String> getEmailRecipient(){
             return this.recipient;
         }
 
-        @Override
-        public String getEmailArgument() throws RemoteException{
+        public String getEmailArgument(){
             return this.argument;
         }
 
-        @Override
-        public String getEmailText() throws RemoteException{
+        public String getEmailText(){
             return this.text;
         }
 
-        @Override
-        public Date getEmailDate() throws RemoteException{
+        public String getEmailDate(){
             return this.date;
         }
 
+        public int getEmailID(){
+            return this.ID;
+        }
+
+        public int getEmailPriority(){
+            return this.priority;
+        }
 }   

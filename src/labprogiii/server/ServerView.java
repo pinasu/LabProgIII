@@ -9,11 +9,15 @@ import javax.swing.*;
 
 class ServerView extends JFrame implements Observer {
     ServerController controller;
+    Server server;
     JTextArea textArea;
     JScrollPane scrollPane;
     
-    public ServerView(ServerController controller){
+    public ServerView(Server server){
         super("Server Log");
+
+        this.controller = new ServerController(server, this);
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
@@ -34,7 +38,11 @@ class ServerView extends JFrame implements Observer {
         this.setDefaultCloseOperation(3);
         this.setSize(600, 300);
 
-        this.controller = controller;
+        this.server = server;
+    }
+
+    public ServerController getController(){
+        return this.controller;
     }
     
     public void printLog(String message) {

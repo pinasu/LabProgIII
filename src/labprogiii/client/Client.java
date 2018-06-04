@@ -87,13 +87,21 @@ class Client extends Observable {
                     row.add(e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
 
                 row.add(e.getEmailArgument());
-                row.add(e.getEmailDate().toString());
+                row.add(e.getEmailDate());
             } catch (RemoteException ex) {
                 System.out.println(ex.getCause());
             }
             tmp.add(row);
         }
         return tmp;
+    }
+
+    public void sendMail(EMail e) throws RemoteException {
+        int resp = this.server.sendMail(this.account.getAccountName(), e);
+        if(resp == -1)
+            view.showPopUp("One or more recipients do not exist.");
+        else
+            view.showPopUp("EMail sent correctly.");
     }
 
     private void launchError(String s){

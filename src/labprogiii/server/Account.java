@@ -4,10 +4,10 @@ import java.util.Date;
 
 class Account {
     String accountName;
-    Date creationDate;
+    String creationDate;
 
-    public Account(String name, Date date){
-        this.accountName = name;
+    public Account(String name, String date){
+        this.accountName = name+"@sasi.com";
         this.creationDate = date;
     }
 

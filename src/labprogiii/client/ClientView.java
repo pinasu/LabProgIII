@@ -1,14 +1,9 @@
 package labprogiii.client;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.rmi.RemoteException;
 import java.util.Vector;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
@@ -32,7 +27,6 @@ class ClientView extends JFrame {
     Dimension dim;
 
     Client client;
-
     ClientController controller;
 
     public ClientView(Client c) {
@@ -87,22 +81,45 @@ class ClientView extends JFrame {
 
     public void showMail(EMail e) throws RemoteException{
         JFrame frame = new JFrame();
-        if(controller.getType() == SENT_MESSAGES)
-            frame.setTitle("Email sent to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
-        else if(controller.getType() == RECEIVED_MESSAGES)
-            frame.setTitle("Email from "+e.getEmailSender());
+        frame.setLayout(new BorderLayout());
 
-        JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n\t"+e.getEmailText());
+        if(controller.getType() == SENT_MESSAGES) {
+            frame.setTitle("Email sent to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
+        }
+        else if(controller.getType() == RECEIVED_MESSAGES) {
+            frame.setTitle("Email from "+e.getEmailSender());
+            JPanel buttons = new JPanel();
+
+            buttons.setLayout(new GridLayout(1,0,2,1));
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridheight = 1;
+
+            JButton answerButton = new JButton("Answer");
+            c.gridy = 0;
+            answerButton.addActionListener(this.controller);
+
+            JButton forwardButton = new JButton("Forward");
+            c.gridy = 1;
+            forwardButton.addActionListener(this.controller);
+
+            buttons.add(answerButton, c);
+            buttons.add(forwardButton, c);
+
+            frame.add(buttons, BorderLayout.SOUTH);
+        }
+
+        JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n"+e.getEmailText());
         content.setEditable(false);
         content.setBorder(BorderFactory.createCompoundBorder(
                 content.getBorder(),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-        frame.add(content);
+        frame.add(content, BorderLayout.CENTER);
         frame.setSize(600, 300);
         Dimension dimMv = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(dimMv.width/2-frame.getSize().width/2, dimMv.height/2-frame.getSize().height/2);
         frame.setVisible(true);
+
     }
 
     void changeTitle(String title, int type){
@@ -142,72 +159,16 @@ class ClientView extends JFrame {
 
     }
 
-    public void newMailView(){
-        JFrame mailFrame = new JFrame("Write a new email");
-        JPanel mail = new JPanel();
-        JTextArea mailContent = new JTextArea("");
-        JButton sendBtn = new JButton("Send");
-        JPanel buttonPanel = new JPanel();
-        JTextArea recipientMail = new JTextArea("Insert recipient here");
-        JTextArea argumentMail = new JTextArea("Insert argument here");
-        Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
+    void showPopUp(String info) {
+        JOptionPane.showMessageDialog(null, info, "Info", JOptionPane.INFORMATION_MESSAGE);
+    }
 
-        mailContent.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+    public NewMailView newMailView(EMail e) throws RemoteException {
+        return new NewMailView(this.controller, e);
+    }
 
-        mail.setLayout(new BorderLayout(5,5));
-        buttonPanel.setLayout(new BorderLayout(5,5));
-
-        buttonPanel.add(recipientMail, BorderLayout.PAGE_START);
-        buttonPanel.add(argumentMail, BorderLayout.CENTER);
-        recipientMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-        argumentMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
-
-        recipientMail.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(MouseEvent ev){
-                recipientMail.setText("");
-            }
-        });
-
-        argumentMail.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(MouseEvent ev){
-                argumentMail.setText("");
-            }
-        });
-
-        recipientMail.getDocument().addDocumentListener(new DocumentListener(){
-            @Override
-            public void insertUpdate(DocumentEvent de) {
-                sendBtn.setEnabled(true);
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent de) {}
-
-            @Override
-            public void changedUpdate(DocumentEvent de) {}
-
-        });
-
-        mailContent.setLineWrap(true);
-        mail.add(mailContent, BorderLayout.CENTER);
-
-        mailFrame.setSize(700, 400);
-        mail.add(buttonPanel, BorderLayout.NORTH);
-
-        sendBtn.setSize(50, 100);
-        sendBtn.setEnabled(false);
-
-        JPanel bottomPanel = new JPanel();
-        bottomPanel.add(sendBtn);
-
-        mail.add(bottomPanel, BorderLayout.SOUTH);
-
-        mailFrame.add(mail);
-
-        mailFrame.setLocation(dim.width/2-mailFrame.getSize().width/2, dim.height/2-mailFrame.getSize().height/2);
-        mailFrame.setVisible(true);
+    public NewMailView newMailView() {
+        return new NewMailView(this.controller);
     }
 
     public class MyTableModel extends DefaultTableModel {
@@ -249,7 +210,7 @@ class ClientView extends JFrame {
         receivedButton.addActionListener(this.controller);
 
         ext.add(menu);
-        ext.setBorder(BorderFactory.createEmptyBorder(15,3,3,3));
+        ext.setBorder(BorderFactory.createEmptyBorder(19,3,3,3));
         return ext;
     }
 
