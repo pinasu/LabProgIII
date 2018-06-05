@@ -60,6 +60,37 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
     }
 
+    public int deleteReceivedMail(String account, int index){
+        int id = -1;
+        try {
+            id = this.inboxMap.get(account).getMessagesIn().get(index).getEmailID();
+            view.printLog(account+" deleted Email with ID "+id+" (received).");
+
+            removeRcvMailFile(account, id);
+
+            this.inboxMap.get(account).getMessagesIn().remove(index);
+        } catch (RemoteException e) {
+            view.printLog("Error: cannot delete email with ID "+id+".");
+        }
+        return 0;
+    }
+
+    public int deleteSentMail(String account, int index){
+        int id = -1;
+        try {
+            id = this.inboxMap.get(account).getMessagesOut().get(index).getEmailID();
+            view.printLog(account+" deleted Email with ID "+id+".");
+
+            removeSntMailFile(account, id);
+
+            this.inboxMap.get(account).getMessagesOut().remove(index);
+
+        } catch (RemoteException e) {
+            view.printLog("Error: cannot delete email with ID "+id+" (sent).");
+        }
+        return 0;
+    }
+
     public int sendMail(String account, EMail e){
         this.inboxMap.get(account).getMessagesOut().add(e);
         try {
@@ -67,13 +98,61 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                 this.inboxMap.get(rec).getMessagesIn().add(e);
 
             writeMail(e);
-            view.printLog(e.getEmailSender()+" sent an email to "+e.getEmailRecipient()+".");
+            view.printLog(e.getEmailSender()+" sent an email to "+e.getEmailRecipient().toString().replace("[", "").replace("]", "")+".");
 
-        } catch (RemoteException e1) {
-            view.printLog("Errore.");
+        } catch (Exception e1) {
+            view.printLog("Error: one or more recipients do not exist.");
             return -1;
         }
         return 0;
+    }
+
+    private void removeRcvMailFile(String account, int mailID){
+        String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
+
+        File dir = new File(PATH);
+        for(File child : dir.listFiles()) {
+
+            if(child.getName().equals(account)) {
+
+                if (child.isDirectory()) {
+
+                    for (File f : child.listFiles()) {
+
+                        if (f.getName().equals("received")) {
+                            for (File m : f.listFiles()) {
+                                if (m.getName().equals(mailID + ".csv")) ;
+                                m.delete();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void removeSntMailFile(String account, int mailID){
+        String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
+
+        File dir = new File(PATH);
+        for(File child : dir.listFiles()) {
+
+            if(child.getName().equals(account)) {
+
+                if (child.isDirectory()) {
+
+                    for (File f : child.listFiles()) {
+
+                        if (f.getName().equals("sent")) {
+                            for (File m : f.listFiles()) {
+                                if (m.getName().equals(mailID + ".csv")) ;
+                                m.delete();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void writeMail(EMail e) throws RemoteException {
@@ -138,7 +217,6 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         }
     }
 
-
     private void setUpInbox() throws RemoteException {
 
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
@@ -166,7 +244,6 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                             String ID = m.getName().replace(".csv", "");
                             EMail a = getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID));
 
-                            System.out.println("AGGIUNGO LA MAIL CON ID DEL CAZZO "+a.getEmailID()+" A QUEL FROCIO DI "+child.getName());
                             emailListIn.add(a);
 
                         }
@@ -194,7 +271,6 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         }
 
         String sender = in.next();
-        System.out.println(sender);
 
         String rc = in.next();
 

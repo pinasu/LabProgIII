@@ -19,6 +19,8 @@ public class ClientController implements MouseListener, ActionListener, Observer
     Client client;
     ClientView view;
 
+    int p = 0;
+
     Account account;
     ArrayList<EMail> emailListIn, emailListOut;
 
@@ -28,7 +30,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     int emailID = 4;
 
-    int type;
+    int type = 0;
 
     public ClientController(Client c, ClientView view) {
         this.client = c;
@@ -40,7 +42,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
         this.emailListOut = this.client.getEmailListOut();
     }
 
-    public int getType(){
+    public int getType() {
         return this.type;
     }
 
@@ -49,37 +51,29 @@ public class ClientController implements MouseListener, ActionListener, Observer
         if (ev.getActionCommand().equals("New Email")) {
             this.answer = view.newMailView();
 
-        }
-
-        else if (ev.getActionCommand().equals("Sent")) {
+        } else if (ev.getActionCommand().equals("Sent")) {
             this.type = view.SENT_MESSAGES;
 
-            if(view.title.getText().equals("Received"))
+            if (view.title.getText().equals("Received"))
                 view.changeTitle("Sent", this.type);
 
             view.showMailList(this.type);
-        }
-
-        else if (ev.getActionCommand().equals("Received")) {
+        } else if (ev.getActionCommand().equals("Received")) {
             this.type = view.RECEIVED_MESSAGES;
 
-            if(view.title.getText().equals("Sent"))
+            if (view.title.getText().equals("Sent"))
                 view.changeTitle("Received", this.type);
 
             view.showMailList(this.type);
 
-        }
-
-        else if(ev.getActionCommand().equals(("Answer"))){
+        } else if (ev.getActionCommand().equals(("Answer"))) {
             try {
                 this.answer = view.newMailView(this.currentMail);
 
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-        }
-
-        else if(ev.getActionCommand().equals("Send")){
+        } else if (ev.getActionCommand().equals("Send")) {
             try {
                 ArrayList<String> recipients = new ArrayList();
                 String[] splitted = this.answer.getRecipient().split(",");
@@ -87,16 +81,39 @@ public class ClientController implements MouseListener, ActionListener, Observer
                 for (String s : splitted)
                     recipients.add(s.replace(",", ""));
 
-                this.currentMail = new EmailClientImpl(emailID++, account.getAccountName(), recipients, this.answer.getArgument(), this.answer.getContent(),1,  new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+                this.currentMail = new EmailClientImpl(emailID++, account.getAccountName(), recipients, this.answer.getArgument(), this.answer.getContent(), 1, new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 
-                client.getEmailListOut().add(this.currentMail);
-                client.sendMail(this.currentMail);
+                int resp = client.sendMail(this.currentMail);
+
+                if (resp == -1)
+                    view.showPopUp("One or more recipients do not exist: try again.");
+                else {
+                    view.showPopUp("EMail sent correctly.");
+
+                    view.showMailList(1);
+                    this.answer.setVisible(false);
+                    this.answer.dispose();
+                }
 
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-            this.answer.setVisible(false);
-            this.answer.dispose();
+        } else if (ev.getActionCommand().equals("Delete")) {
+            try {
+                int r;
+                if(this.type == 0)
+                    r = client.deleteReceivedMail(this.p);
+                else
+                    r = client.deleteSentMail(this.p);
+                if(r == -1)
+                    view.showPopUp("Error deleting Email.");
+                else
+                    view.showPopUp("Mail deleted.");
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            view.showMailList(0);
         }
     }
 
@@ -104,14 +121,14 @@ public class ClientController implements MouseListener, ActionListener, Observer
     public void mouseClicked(MouseEvent ev) {
         ArrayList<EMail> emailList = new ArrayList<>();
 
-        if(this.type == view.RECEIVED_MESSAGES)
+        if (this.type == view.RECEIVED_MESSAGES)
             emailList = this.emailListIn;
 
-        else if(this.type == view.SENT_MESSAGES)
+        else if (this.type == view.SENT_MESSAGES)
             emailList = this.emailListOut;
 
         try {
-            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1){
+            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1) {
                 this.currentMail = emailList.get(view.getTable().getSelectedRow());
                 view.showMail(currentMail);
             }
@@ -128,6 +145,10 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if (SwingUtilities.isRightMouseButton(e)) {
+            this.p = view.getTable().rowAtPoint(e.getPoint());
+            view.deletePopUp();
+        }
     }
 
     @Override
@@ -143,9 +164,4 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     }
 
-    /*
-    @Override
-    public void update(Observable o, Object arg) {
-        //view.setEmailList((ArrayList<EMail>) arg);
-    }*/
 }

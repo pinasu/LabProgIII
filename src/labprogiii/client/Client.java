@@ -88,6 +88,7 @@ class Client extends Observable {
 
                 row.add(e.getEmailArgument());
                 row.add(e.getEmailDate());
+
             } catch (RemoteException ex) {
                 System.out.println(ex.getCause());
             }
@@ -96,12 +97,19 @@ class Client extends Observable {
         return tmp;
     }
 
-    public void sendMail(EMail e) throws RemoteException {
-        int resp = this.server.sendMail(this.account.getAccountName(), e);
-        if(resp == -1)
-            view.showPopUp("One or more recipients do not exist.");
-        else
-            view.showPopUp("EMail sent correctly.");
+    public int sendMail(EMail e) throws RemoteException {
+        emailListOut.add(e);
+        return this.server.sendMail(this.account.getAccountName(), e);
+    }
+
+    public int deleteReceivedMail(int index) throws RemoteException{
+        emailListIn.remove(index);
+        return this.server.deleteReceivedMail(this.account.getAccountName(), index);
+    }
+
+    public int deleteSentMail(int index) throws RemoteException{
+        emailListOut.remove(index);
+        return this.server.deleteSentMail(this.account.getAccountName(), index);
     }
 
     private void launchError(String s){

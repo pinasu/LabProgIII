@@ -70,27 +70,26 @@ class ClientView extends JFrame {
         this.setSize(900, 600);
 
         this.dim = Toolkit.getDefaultToolkit().getScreenSize();
-        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+        this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         this.setVisible(true);
 
     }
 
-    public JTable getTable(){
+    public JTable getTable() {
         return this.table;
     }
 
-    public void showMail(EMail e) throws RemoteException{
+    public void showMail(EMail e) throws RemoteException {
         JFrame frame = new JFrame();
         frame.setLayout(new BorderLayout());
 
-        if(controller.getType() == SENT_MESSAGES) {
-            frame.setTitle("Email sent to "+e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
-        }
-        else if(controller.getType() == RECEIVED_MESSAGES) {
-            frame.setTitle("Email from "+e.getEmailSender());
+        if (controller.getType() == SENT_MESSAGES) {
+            frame.setTitle("Email sent to " + e.getEmailRecipient().toString().replace("[", "").replace("]", ""));
+        } else if (controller.getType() == RECEIVED_MESSAGES) {
+            frame.setTitle("Email from " + e.getEmailSender());
             JPanel buttons = new JPanel();
 
-            buttons.setLayout(new GridLayout(1,0,2,1));
+            buttons.setLayout(new GridLayout(1, 0, 2, 1));
             GridBagConstraints c = new GridBagConstraints();
             c.gridheight = 1;
 
@@ -108,7 +107,7 @@ class ClientView extends JFrame {
             frame.add(buttons, BorderLayout.SOUTH);
         }
 
-        JTextArea content = new JTextArea("Argument: "+e.getEmailArgument()+"\n\n"+e.getEmailText());
+        JTextArea content = new JTextArea("Argument: " + e.getEmailArgument() + "\n\n" + e.getEmailText());
         content.setEditable(false);
         content.setBorder(BorderFactory.createCompoundBorder(
                 content.getBorder(),
@@ -117,15 +116,15 @@ class ClientView extends JFrame {
         frame.add(content, BorderLayout.CENTER);
         frame.setSize(600, 300);
         Dimension dimMv = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation(dimMv.width/2-frame.getSize().width/2, dimMv.height/2-frame.getSize().height/2);
+        frame.setLocation(dimMv.width / 2 - frame.getSize().width / 2, dimMv.height / 2 - frame.getSize().height / 2);
         frame.setVisible(true);
 
     }
 
-    void changeTitle(String title, int type){
+    void changeTitle(String title, int type) {
         this.title.setText(title);
 
-        if(type == RECEIVED_MESSAGES)
+        if (type == RECEIVED_MESSAGES)
             this.v = "From";
         else if (type == SENT_MESSAGES)
             this.v = "To";
@@ -150,9 +149,11 @@ class ClientView extends JFrame {
         this.table.setShowGrid(false);
         this.table.setFillsViewportHeight(true);
         this.table.setRowHeight(25);
+
         this.table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
         this.table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
+
         this.table.getTableHeader().setReorderingAllowed(false);
 
         this.table.addMouseListener(this.controller);
@@ -170,6 +171,19 @@ class ClientView extends JFrame {
     public NewMailView newMailView() {
         return new NewMailView(this.controller);
     }
+
+    public void deletePopUp() {
+        final JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem deleteItem = new JMenuItem("Delete");
+
+        popupMenu.add(deleteItem);
+
+        table.setComponentPopupMenu(popupMenu);
+
+        deleteItem.addActionListener(this.controller);
+    }
+
+
 
     public class MyTableModel extends DefaultTableModel {
 

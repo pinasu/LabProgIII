@@ -14,4 +14,8 @@ public interface ServerInterface extends Remote {
 
     int sendMail(String account, EMail e) throws RemoteException;
 
+    int deleteReceivedMail(String account, int index) throws RemoteException;
+
+    int deleteSentMail(String account, int index) throws RemoteException;
+
 }
