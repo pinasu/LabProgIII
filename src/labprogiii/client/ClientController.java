@@ -51,14 +51,18 @@ public class ClientController implements MouseListener, ActionListener, Observer
         if (ev.getActionCommand().equals("New Email")) {
             this.answer = view.newMailView();
 
-        } else if (ev.getActionCommand().equals("Sent")) {
+        }
+
+        else if (ev.getActionCommand().equals("Sent")) {
             this.type = view.SENT_MESSAGES;
 
             if (view.title.getText().equals("Received"))
                 view.changeTitle("Sent", this.type);
 
             view.showMailList(this.type);
-        } else if (ev.getActionCommand().equals("Received")) {
+        }
+
+        else if (ev.getActionCommand().equals("Received")) {
             this.type = view.RECEIVED_MESSAGES;
 
             if (view.title.getText().equals("Sent"))
@@ -66,14 +70,18 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
             view.showMailList(this.type);
 
-        } else if (ev.getActionCommand().equals(("Answer"))) {
+        }
+
+        else if (ev.getActionCommand().equals(("Answer"))) {
             try {
-                this.answer = view.newMailView(this.currentMail);
+                this.answer = view.newMailView(this.currentMail, 0);
 
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-        } else if (ev.getActionCommand().equals("Send")) {
+        }
+
+        else if (ev.getActionCommand().equals("Send")) {
             try {
                 ArrayList<String> recipients = new ArrayList();
                 String[] splitted = this.answer.getRecipient().split(",");
@@ -98,7 +106,9 @@ public class ClientController implements MouseListener, ActionListener, Observer
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-        } else if (ev.getActionCommand().equals("Delete")) {
+        }
+
+        else if (ev.getActionCommand().equals("Delete")) {
             try {
                 int r;
                 if(this.type == 0)
@@ -113,8 +123,18 @@ public class ClientController implements MouseListener, ActionListener, Observer
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
-            view.showMailList(0);
+            view.showMailList(this.type);
         }
+
+        else if(ev.getActionCommand().equals("Forward")) {
+            try {
+                this.answer = view.newMailView(this.currentMail, 1);
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     @Override

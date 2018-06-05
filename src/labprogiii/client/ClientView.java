@@ -164,8 +164,8 @@ class ClientView extends JFrame {
         JOptionPane.showMessageDialog(null, info, "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public NewMailView newMailView(EMail e) throws RemoteException {
-        return new NewMailView(this.controller, e);
+    public NewMailView newMailView(EMail e, int type) throws RemoteException {
+        return new NewMailView(this.controller, e, type);
     }
 
     public NewMailView newMailView() {

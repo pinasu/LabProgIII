@@ -23,7 +23,7 @@ public class NewMailView extends JFrame{
         JButton sendBtn = new JButton("Send");
         JPanel buttonPanel = new JPanel();
 
-        this.recipientMail = new JTextArea("Insert comma-separated recipient here");
+        this.recipientMail = new JTextArea("Insert comma-separated recipients here");
         this.argumentMail = new JTextArea("Insert argument here");
 
         Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
@@ -88,16 +88,23 @@ public class NewMailView extends JFrame{
         sendBtn.addActionListener(controller);
     }
 
-    public NewMailView(ClientController controller, EMail e) throws RemoteException {
-        this.setTitle("Answer " + e.getEmailSender());
+    public NewMailView(ClientController controller, EMail e, int type) throws RemoteException {
         JPanel mail = new JPanel();
-
-        mailContent = new JTextArea("");
         JButton sendBtn = new JButton("Send");
         JPanel buttonPanel = new JPanel();
 
-        recipientMail = new JTextArea(e.getEmailSender());
-        argumentMail = new JTextArea("RE: " + e.getEmailArgument());
+        if(type == 0) {
+            this.setTitle("Answer " + e.getEmailSender());
+            mailContent = new JTextArea("");
+            recipientMail = new JTextArea(e.getEmailSender());
+            argumentMail = new JTextArea("RE: " + e.getEmailArgument());
+        }
+        else {
+            this.setTitle("Forward email");
+            mailContent = new JTextArea(e.getEmailText());
+            recipientMail = new JTextArea("Insert comma-separated recipients whom forward here");
+            argumentMail = new JTextArea("FW: " + e.getEmailArgument());
+        }
 
         Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
 
@@ -111,22 +118,49 @@ public class NewMailView extends JFrame{
         recipientMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         argumentMail.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-        mailContent.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent de) {
-                sendBtn.setEnabled(true);
-            }
+        if(type == 0) {
+            mailContent.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent de) {
+                    sendBtn.setEnabled(true);
+                }
 
-            @Override
-            public void removeUpdate(DocumentEvent de) {
-            }
+                @Override
+                public void removeUpdate(DocumentEvent de) {
+                }
 
-            @Override
-            public void changedUpdate(DocumentEvent de) {
-            }
+                @Override
+                public void changedUpdate(DocumentEvent de) {
+                }
 
-        });
+            });
+        }
 
+        else{
+            recipientMail.getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent de) {
+                    sendBtn.setEnabled(true);
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent de) {
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent de) {
+                }
+
+            });
+
+            recipientMail.addMouseListener(new MouseAdapter(){
+                @Override
+                public void mouseClicked(MouseEvent ev){
+                    recipientMail.setText("");
+                }
+            });
+
+        }
 
         this.setSize(700, 400);
         mail.add(buttonPanel, BorderLayout.NORTH);
@@ -142,9 +176,6 @@ public class NewMailView extends JFrame{
         this.add(mail);
 
         mailContent.setLineWrap(true);
-
-        mailContent.setCaretPosition(recipientMail.getSelectionStart());
-        mailContent.moveCaretPosition(recipientMail.getSelectionStart());
 
         mail.add(mailContent, BorderLayout.CENTER);
 
