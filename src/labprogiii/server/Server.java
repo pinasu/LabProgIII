@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -36,12 +35,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         this.naming = new InitialContext();
         this.naming.bind("rmi:server", this);
 
-        ArrayList<Account> accountList = new ArrayList<>();
-        accountList.add(new Account("mino", new SimpleDateFormat("dd/MM/yyyy").format(new Date())));
-        accountList.add(new Account("pino", new SimpleDateFormat("dd/MM/yyyy").format(new Date())));
-        accountList.add(new Account("lino", new SimpleDateFormat("dd/MM/yyyy").format(new Date())));
-
-        setUpInbox(accountList);
+        setUpInbox();
 
         controller.printLog("Waiting for clients...");
     }
@@ -134,8 +128,8 @@ class Server extends UnicastRemoteObject implements ServerInterface {
             mail.append(e.getEmailRecipient().toString().replace("[", "").replace("]", "")+";\n");
             mail.append(e.getEmailArgument()+";\n");
             mail.append(e.getEmailText()+";\n");
-            mail.append(e.getEmailDate()+";\n");
-            mail.append(String.valueOf(e.getEmailPriority())+";");
+            mail.append(String.valueOf(e.getEmailPriority())+";\n");
+            mail.append(e.getEmailDate()+";");
 
             mail.close();
 
@@ -145,80 +139,83 @@ class Server extends UnicastRemoteObject implements ServerInterface {
     }
 
 
-    private void setUpInbox(ArrayList<Account> accountList) throws RemoteException {
-        ArrayList<EMail> emailListIn = new ArrayList<>();
-        ArrayList<EMail> emailListOut = new ArrayList<>();
+    private void setUpInbox() throws RemoteException {
 
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
 
-        //Get all mails
         File dir = new File(PATH);
-        if(dir.isDirectory()) {
-            //Main directory
-            File[] userDir = dir.listFiles();
 
-            //Iterate thought main directory files
-            for(File child : userDir){
+        for(File child : dir.listFiles()){
+            ArrayList<EMail> emailListIn = new ArrayList<>();
+            ArrayList<EMail> emailListOut = new ArrayList<>();
 
-                if(child.isDirectory()){
-                    //Single users directories
-                    File[] dirMail = child.listFiles();
+            if(child.isDirectory()){
 
-                    for(File f : dirMail){
-                        //Received or sent
-                        File[] dirSR = f.listFiles();
+                for(File f : child.listFiles()) {
 
-                        for(File m : dirSR) {
-                            if (m.isFile()) {
-                                //Mail ID
-                                String[] ID = m.getName().split(".csv");
+                    if (f.getName().equals("sent")) {
 
-                                try {
-                                    Scanner in = new Scanner(new File(PATH + child.getName()+"/"+f.getName()+"/"+m.getName())).useDelimiter(";\n");
-                                    String sender = in.next();
-
-                                    //Mail recipients
-                                    String rc = in.next();
-                                    Scanner sc = new Scanner(rc).useDelimiter(",");
-
-                                    HashSet<String> set = new HashSet<>();
-                                    while (sc.hasNext())
-                                        set.add(sc.next());
-
-                                    //Mail argument
-                                    String argument = in.next();
-
-                                    //Mail text
-                                    String text = in.next();
-
-                                    int priority = Integer.parseInt(in.next());
-
-                                    String date = in.next();
-
-                                    if(f.getName().equals("sent"))
-                                        emailListOut.add(new EmailServerImpl(Integer.parseInt(ID[0]), sender, new ArrayList<>(set), argument, text, priority, date));
-
-                                    else if(f.getName().equals("received"))
-                                        emailListIn.add(new EmailServerImpl(Integer.parseInt(ID[0]), sender, new ArrayList<>(set), argument, text, priority, date));
-
-                                    in.close();
-
-                                } catch (FileNotFoundException e) {
-                                    this.controller.printLog(e.getMessage());
-                                }
-                            }
+                        for (File m : f.listFiles()) {
+                            String ID = m.getName().replace(".csv", "");
+                            emailListOut.add(getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
                         }
+
                     }
+                    else if (f.getName().equals("received")) {
+                        for (File m : f.listFiles()) {
+                            String ID = m.getName().replace(".csv", "");
+                            EMail a = getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID));
+
+                            System.out.println("AGGIUNGO LA MAIL CON ID DEL CAZZO "+a.getEmailID()+" A QUEL FROCIO DI "+child.getName());
+                            emailListIn.add(a);
+
+                        }
+
+                    }
+
                 }
+
+                ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
+                inboxMap.put(child.getName(), inbox);
+                this.controller.printLog("Inbox for account "+child.getName()+" created.");
+
             }
-        }
-        for(Account a : accountList){
-            ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
-
-            inboxMap.put(a.getAccountName(), inbox);
-
-            this.controller.printLog("Inbox for account "+a.getAccountName()+" created.");
         }
     }
 
+    private EMail getEmailFromPath(String path, int ID) throws RemoteException {
+        File file = new File(path);
+
+        Scanner in = null;
+        try {
+            in = new Scanner(file).useDelimiter(";\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String sender = in.next();
+        System.out.println(sender);
+
+        String rc = in.next();
+
+        Scanner sc = new Scanner(rc).useDelimiter(",");
+        ArrayList<String> recipients = new ArrayList();
+        while (sc.hasNext()) {
+            String tmp = sc.next();
+            if(!recipients.contains(tmp))
+                recipients.add(tmp);
+        }
+
+        String argument = in.next();
+
+        String text = in.next();
+
+        int priority = Integer.parseInt(in.next());
+
+        String date = in.next();
+
+        in.close();
+
+        return new EmailServerImpl(ID, sender, recipients, argument, text, priority, date);
+    }
 }

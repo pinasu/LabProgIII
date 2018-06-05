@@ -47,7 +47,7 @@ class ClientView extends JFrame {
 
         this.setLayout(new BorderLayout());
 
-        this.setTitle(client.getAccount().getAccountName()+"@sasi.com");
+        this.setTitle(client.getAccount().getAccountName());
 
         this.extern = new JPanel();
         this.extern.setLayout(new BorderLayout());
