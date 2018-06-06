@@ -5,7 +5,9 @@ import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.*;
@@ -17,8 +19,24 @@ class Client extends Observable {
     ClientView view;
     ServerInterface server;
     ArrayList<EMail> emailListIn, emailListOut;
-    
+
+    class NewMail implements Runnable {
+        @Override
+        public void run() {
+            while(true) {
+                try {
+                    System.out.println("Checking for new emails...");
+                    Thread.sleep(Math.abs(new Random().nextInt() % 1000 ));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public Client(Account account) {
+        new Thread(new NewMail()).start();
+
         this.account = account;
 
         try{
@@ -123,5 +141,14 @@ class Client extends Observable {
         frame.setDefaultCloseOperation(3);
         frame.setSize(500, 200);
         frame.setVisible(true);
+    }
+
+    public int getIDCount(){
+        try {
+            return this.server.getIDCount();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 }

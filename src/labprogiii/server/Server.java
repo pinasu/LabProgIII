@@ -22,6 +22,8 @@ class Server extends UnicastRemoteObject implements ServerInterface {
     Context naming;
     HashMap<String, ServerInbox> inboxMap;
 
+    int IDCount = 0;
+
     public Server() throws RemoteException, NamingException {
         this.view = new ServerView(this);
         this.controller = this.view.getController();
@@ -38,6 +40,14 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         setUpInbox();
 
         controller.printLog("Waiting for clients...");
+    }
+
+    public synchronized int getIDCount(){
+        return this.IDCount;
+    }
+
+    public synchronized void setIDCount(){
+        this.IDCount++;
     }
 
     public void notifyConnection(String account){
@@ -98,10 +108,15 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                 this.inboxMap.get(rec).getMessagesIn().add(e);
 
             writeMail(e);
+            setIDCount();
             view.printLog(e.getEmailSender()+" sent an email to "+e.getEmailRecipient().toString().replace("[", "").replace("]", "")+".");
 
         } catch (Exception e1) {
-            view.printLog("Error: one or more recipients do not exist.");
+            try {
+                view.printLog("Error: "+e.getEmailSender()+" tried to send an email to unexistent recipient(s).");
+            } catch (RemoteException e2) {
+                view.printLog("Error: "+e2.getCause());
+            }
             return -1;
         }
         return 0;
@@ -121,8 +136,8 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
                         if (f.getName().equals("received")) {
                             for (File m : f.listFiles()) {
-                                if (m.getName().equals(mailID + ".csv")) ;
-                                m.delete();
+                                if (m.getName().equals(mailID + ".csv"))
+                                    m.delete();
                             }
                         }
                     }
@@ -145,8 +160,8 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
                         if (f.getName().equals("sent")) {
                             for (File m : f.listFiles()) {
-                                if (m.getName().equals(mailID + ".csv")) ;
-                                m.delete();
+                                if (m.getName().equals(mailID + ".csv"))
+                                    m.delete();
                             }
                         }
                     }
@@ -231,33 +246,29 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
                 for(File f : child.listFiles()) {
 
-                    if (f.getName().equals("sent")) {
+                    for (File m : f.listFiles()) {
 
-                        for (File m : f.listFiles()) {
-                            String ID = m.getName().replace(".csv", "");
+                        String ID = m.getName().replace(".csv", "");
+
+                        if(Integer.parseInt(ID) > this.IDCount)
+                            this.IDCount = Integer.parseInt(ID);
+
+                        if (f.getName().equals("sent"))
                             emailListOut.add(getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
-                        }
 
-                    }
-                    else if (f.getName().equals("received")) {
-                        for (File m : f.listFiles()) {
-                            String ID = m.getName().replace(".csv", "");
-                            EMail a = getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID));
-
-                            emailListIn.add(a);
-
-                        }
-
+                        else if (f.getName().equals("received"))
+                            emailListIn.add(getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
                     }
 
                 }
 
-                ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
-                inboxMap.put(child.getName(), inbox);
-                this.controller.printLog("Inbox for account "+child.getName()+" created.");
+            ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
+            inboxMap.put(child.getName(), inbox);
+            this.controller.printLog("Inbox for account "+child.getName()+" created.");
 
             }
         }
+        this.IDCount++;
     }
 
     private EMail getEmailFromPath(String path, int ID) throws RemoteException {

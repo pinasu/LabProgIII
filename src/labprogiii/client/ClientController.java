@@ -28,9 +28,7 @@ public class ClientController implements MouseListener, ActionListener, Observer
 
     EMail currentMail;
 
-    int emailID = 4;
-
-    int type = 0;
+    int type = 1;
 
     public ClientController(Client c, ClientView view) {
         this.client = c;
@@ -89,7 +87,13 @@ public class ClientController implements MouseListener, ActionListener, Observer
                 for (String s : splitted)
                     recipients.add(s.replace(",", ""));
 
-                this.currentMail = new EmailClientImpl(emailID++, account.getAccountName(), recipients, this.answer.getArgument(), this.answer.getContent(), 1, new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+                int newID = client.getIDCount();
+                if (newID == -1){
+                    view.showPopUp("Error. Try again.");
+                    return;
+                }
+
+                this.currentMail = new EmailClientImpl(newID, account.getAccountName(), recipients, this.answer.getArgument(), this.answer.getContent(), 1, new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
 
                 int resp = client.sendMail(this.currentMail);
 

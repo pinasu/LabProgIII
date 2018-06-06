@@ -18,4 +18,7 @@ public interface ServerInterface extends Remote {
 
     int deleteSentMail(String account, int index) throws RemoteException;
 
+    int getIDCount() throws RemoteException;
+
+    void setIDCount() throws RemoteException;
 }
