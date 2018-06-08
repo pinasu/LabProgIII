@@ -5,9 +5,7 @@ import java.awt.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Observable;
-import java.util.Random;
 import java.util.Vector;
-import java.util.concurrent.Semaphore;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.*;
@@ -19,15 +17,26 @@ class Client extends Observable {
     ClientView view;
     ServerInterface server;
     ArrayList<EMail> emailListIn, emailListOut;
+    EMail newMail;
 
     class NewMail implements Runnable {
         @Override
         public void run() {
-            while(true) {
+            while (true) {
                 try {
                     System.out.println("Checking for new emails...");
-                    Thread.sleep(Math.abs(new Random().nextInt() % 1000 ));
+                    if (server.getMapValue(account.getAccountName()) == true) {
+
+                        server.setMappuneValue(account.getAccountName(), false);
+
+                        setChanged();
+                        notifyObservers();
+                    }
+
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (RemoteException e) {
                     e.printStackTrace();
                 }
             }
@@ -35,19 +44,18 @@ class Client extends Observable {
     }
 
     public Client(Account account) {
-        new Thread(new NewMail()).start();
-
-        this.account = account;
-
         try{
             try {
+                this.account = account;
+
                 server = (ServerInterface)(new InitialContext().lookup("rmi:server"));
                 server.notifyConnection(account.getAccountName());
 
-                retrieveMessagesIn();
-                retrieveMessagesOut();
+                getEmailList();
 
                 this.view = new ClientView(this);
+
+                new Thread(new NewMail()).start();
 
             } catch (NamingException e) {
                 launchError(String.valueOf(e.getCause()));
@@ -63,30 +71,29 @@ class Client extends Observable {
         return this.account;
     }
 
-    public ArrayList<EMail> getEmailListIn() {
+    public ArrayList<EMail> getEmailListIn(){
         return this.emailListIn;
     }
 
-    public ArrayList<EMail> getEmailListOut() {
+    public ArrayList<EMail> getEmailListOut(){
         return this.emailListOut;
     }
 
-    public void retrieveMessagesIn() throws RemoteException {
-        this.emailListIn = this.server.getMessagesIn(this.account.getAccountName());
+    public void getEmailList() {
+        try {
+            this.emailListIn = this.server.getMessagesIn(this.account.getAccountName());
+            this.emailListOut = this.server.getMessagesOut(this.account.getAccountName());
 
-        setChanged();
-        notifyObservers(emailListIn);
-    }
-
-    public void retrieveMessagesOut() throws RemoteException{
-        this.emailListOut = this.server.getMessagesOut(this.account.getAccountName());
-
-        setChanged();
-        notifyObservers(emailListOut);
+        } catch (RemoteException e) {
+            view.showPopUp("Error while retrieving emails. Try again later.");
+        }
     }
 
     public Vector<Vector> populateData(int type){
         ArrayList<EMail> emailList = null;
+
+        //Updates mail list for client
+        getEmailList();
 
         if (type == 0)
             emailList = this.emailListIn;
@@ -117,7 +124,13 @@ class Client extends Observable {
 
     public int sendMail(EMail e) throws RemoteException {
         emailListOut.add(e);
+
+        this.newMail = e;
         return this.server.sendMail(this.account.getAccountName(), e);
+    }
+
+    public EMail getNewMail(){
+        return this.newMail;
     }
 
     public int deleteReceivedMail(int index) throws RemoteException{
@@ -151,4 +164,5 @@ class Client extends Observable {
         }
         return -1;
     }
+
 }

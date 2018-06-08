@@ -21,6 +21,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
     ServerController controller;
     Context naming;
     HashMap<String, ServerInbox> inboxMap;
+    HashMap<String, Boolean> newMailMap;
 
     int IDCount = 0;
 
@@ -48,6 +49,14 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
     public synchronized void setIDCount(){
         this.IDCount++;
+    }
+
+    public boolean getMapValue(String account){
+        return this.newMailMap.get(account);
+    }
+
+    public void setMappuneValue(String account, boolean value){
+        this.newMailMap.replace(account, value);
     }
 
     public void notifyConnection(String account){
@@ -109,6 +118,10 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
             writeMail(e);
             setIDCount();
+
+            for(String rec : e.getEmailRecipient())
+                newMailMap.put(rec, true);
+
             view.printLog(e.getEmailSender()+" sent an email to "+e.getEmailRecipient().toString().replace("[", "").replace("]", "")+".");
 
         } catch (Exception e1) {
@@ -122,7 +135,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         return 0;
     }
 
-    private void removeRcvMailFile(String account, int mailID){
+    private synchronized void removeRcvMailFile(String account, int mailID){
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
 
         File dir = new File(PATH);
@@ -146,7 +159,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         }
     }
 
-    private void removeSntMailFile(String account, int mailID){
+    private synchronized void removeSntMailFile(String account, int mailID){
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
 
         File dir = new File(PATH);
@@ -170,7 +183,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         }
     }
 
-    private void writeMail(EMail e) throws RemoteException {
+    private synchronized void writeMail(EMail e) throws RemoteException {
         String PATH = System.getProperty("user.dir") + "/src/labprogiii/server/";
 
         File dir = new File(PATH);
@@ -214,7 +227,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         }
     }
 
-    private void createFile(EMail e, String path) {
+    private synchronized void createFile(EMail e, String path) {
         try {
             FileWriter mail = new FileWriter(path+e.getEmailID()+".csv");
 
@@ -233,6 +246,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
     }
 
     private void setUpInbox() throws RemoteException {
+        this.newMailMap = new HashMap<>();
 
         String PATH = System.getProperty("user.dir")+"/src/labprogiii/server/";
 
@@ -263,7 +277,10 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                 }
 
             ServerInbox inbox = new ServerInbox(emailListIn, emailListOut);
-            inboxMap.put(child.getName(), inbox);
+            this.inboxMap.put(child.getName(), inbox);
+
+            this.newMailMap.put(child.getName(), false);
+
             this.controller.printLog("Inbox for account "+child.getName()+" created.");
 
             }

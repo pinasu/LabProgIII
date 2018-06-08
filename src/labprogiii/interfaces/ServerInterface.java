@@ -21,4 +21,8 @@ public interface ServerInterface extends Remote {
     int getIDCount() throws RemoteException;
 
     void setIDCount() throws RemoteException;
+
+    boolean getMapValue(String account) throws RemoteException;
+
+    void setMappuneValue(String account, boolean value) throws RemoteException;
 }

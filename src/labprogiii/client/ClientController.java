@@ -15,41 +15,43 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 
-public class ClientController implements MouseListener, ActionListener, Observer {
+public class ClientController implements MouseListener, ActionListener {
     Client client;
     ClientView view;
 
     int p = 0;
 
     Account account;
-    ArrayList<EMail> emailListIn, emailListOut;
 
     NewMailView answer;
 
     EMail currentMail;
 
-    int type = 1;
+    int type = 0;
 
     public ClientController(Client c, ClientView view) {
         this.client = c;
-        this.account = client.getAccount();
-
         this.view = view;
 
-        this.emailListIn = this.client.getEmailListIn();
-        this.emailListOut = this.client.getEmailListOut();
+        this.account = client.getAccount();
     }
 
     public int getType() {
         return this.type;
     }
 
+    public String getAccount(){
+        return this.account.getAccountName();
+    }
+
+    public Vector<Vector> populateData(int type){
+        return this.client.populateData(type);
+    }
+
     @Override
     public void actionPerformed(ActionEvent ev) {
-        if (ev.getActionCommand().equals("New Email")) {
+        if (ev.getActionCommand().equals("New Email"))
             this.answer = view.newMailView();
-
-        }
 
         else if (ev.getActionCommand().equals("Sent")) {
             this.type = view.SENT_MESSAGES;
@@ -102,7 +104,6 @@ public class ClientController implements MouseListener, ActionListener, Observer
                 else {
                     view.showPopUp("EMail sent correctly.");
 
-                    view.showMailList(1);
                     this.answer.setVisible(false);
                     this.answer.dispose();
                 }
@@ -138,7 +139,6 @@ public class ClientController implements MouseListener, ActionListener, Observer
                 e.printStackTrace();
             }
         }
-
     }
 
     @Override
@@ -146,13 +146,13 @@ public class ClientController implements MouseListener, ActionListener, Observer
         ArrayList<EMail> emailList = new ArrayList<>();
 
         if (this.type == view.RECEIVED_MESSAGES)
-            emailList = this.emailListIn;
+            emailList = client.emailListIn;
 
         else if (this.type == view.SENT_MESSAGES)
-            emailList = this.emailListOut;
+            emailList = client.emailListOut;
 
         try {
-            if (view.getTable().getSelectedRow() < emailList.size() && view.getTable().getSelectedRow() != -1) {
+            if (view.getTable().getSelectedRow() != -1) {
                 this.currentMail = emailList.get(view.getTable().getSelectedRow());
                 view.showMail(currentMail);
             }
@@ -183,9 +183,5 @@ public class ClientController implements MouseListener, ActionListener, Observer
     public void mouseExited(MouseEvent e) {
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-
-    }
 
 }

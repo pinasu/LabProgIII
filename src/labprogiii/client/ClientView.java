@@ -2,13 +2,14 @@ package labprogiii.client;
 
 import java.awt.*;
 import java.rmi.RemoteException;
-import java.util.Vector;
+import java.util.*;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import labprogiii.interfaces.EMail;
 
-class ClientView extends JFrame {
+class ClientView extends JFrame implements Observer {
     final int RECEIVED_MESSAGES = 0;
     final int SENT_MESSAGES = 1;
 
@@ -30,6 +31,11 @@ class ClientView extends JFrame {
     ClientController controller;
 
     public ClientView(Client c) {
+        this.client = c;
+        this.controller = new ClientController(c, this);
+
+        client.addObserver(this);
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
@@ -42,26 +48,19 @@ class ClientView extends JFrame {
             e.printStackTrace();
         }
 
-        this.client = c;
-        this.controller = new ClientController(c, this);
+        this.setTitle(client.getAccount().getAccountName());
 
         this.setLayout(new BorderLayout());
 
-        this.setTitle(client.getAccount().getAccountName());
-
         this.extern = new JPanel();
         this.extern.setLayout(new BorderLayout());
-
         this.table = new JTable();
-
         this.title = new JLabel("Received");
         this.extern.add(this.title, BorderLayout.NORTH);
-
         this.add(this.menu = newMenu(), BorderLayout.WEST);
-
         this.add(this.extern, BorderLayout.CENTER);
 
-        showMailList(RECEIVED_MESSAGES);
+        showMailList(0);
 
         this.body = new JScrollPane(this.table);
         this.extern.add(body);
@@ -134,8 +133,6 @@ class ClientView extends JFrame {
     void showMailList(int type) {
         Vector<String> columnNames;
 
-        this.data = this.client.populateData(type);
-
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
@@ -143,6 +140,8 @@ class ClientView extends JFrame {
         columnNames.add(this.v);
         columnNames.add("Argument");
         columnNames.add("Date");
+
+        this.data = this.controller.populateData(type);
 
         this.table.setModel(new MyTableModel(this.data, columnNames));
 
@@ -183,20 +182,6 @@ class ClientView extends JFrame {
         deleteItem.addActionListener(this.controller);
     }
 
-
-
-    public class MyTableModel extends DefaultTableModel {
-
-        private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
-            super(data, columnNames);
-
-        }
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    }
-
     JPanel newMenu(){
         JPanel ext = new JPanel();
         JPanel menu = new JPanel();
@@ -228,4 +213,68 @@ class ClientView extends JFrame {
         return ext;
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        this.data = (Vector<Vector>) arg;
+
+        if(controller.getType() == 0)
+            showMailList(0);
+
+        ToastMessage toastMessage = new ToastMessage(this.client.getAccount().getAccountName()+", you've got a new mail", 8000, this);
+        toastMessage.setVisible(true);
+    }
+
+    public class ToastMessage extends JDialog {
+        int miliseconds;
+        public ToastMessage(String toastString, int time, JFrame view) {
+            this.miliseconds = time;
+            this.setLocationRelativeTo(view);
+
+            setUndecorated(true);
+            getContentPane().setLayout(new BorderLayout(0, 0));
+
+            JPanel panel = new JPanel();
+            panel.setBackground(Color.BLACK);
+            panel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2));
+            getContentPane().add(panel, BorderLayout.SOUTH);
+
+            JLabel toastLabel = new JLabel("");
+            toastLabel.setText(toastString);
+            toastLabel.setForeground(Color.WHITE);
+
+            setBounds(100, 100, toastLabel.getPreferredSize().width+20, 31);
+
+            setAlwaysOnTop(true);
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            int y = dim.height/2-getSize().height/2;
+            int half = y/2;
+            setLocation(dim.width/2-getSize().width/2, y+half);
+            panel.add(toastLabel);
+            setVisible(false);
+
+            new Thread(){
+                public void run() {
+                    try {
+                        Thread.sleep(miliseconds);
+                        dispose();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+    }
+
+    public class MyTableModel extends DefaultTableModel {
+
+        private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
+            super(data, columnNames);
+
+        }
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+    }
 }

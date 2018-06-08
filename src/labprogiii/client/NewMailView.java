@@ -16,7 +16,9 @@ public class NewMailView extends JFrame{
     JTextArea recipientMail, mailContent, argumentMail;
 
     public NewMailView(ClientController controller){
-        this.setTitle("Write a new email");
+        DocumentListener dl = null;
+        
+        this.setTitle(controller.getAccount()+", write a new email");
 
         JPanel mail = new JPanel();
         this.mailContent = new JTextArea("");
@@ -52,10 +54,12 @@ public class NewMailView extends JFrame{
             }
         });
 
+        DocumentListener finalDl = dl;
         recipientMail.getDocument().addDocumentListener(new DocumentListener(){
             @Override
             public void insertUpdate(DocumentEvent de) {
                 sendBtn.setEnabled(true);
+                recipientMail.getDocument().removeDocumentListener(finalDl);
             }
 
             @Override
@@ -123,6 +127,7 @@ public class NewMailView extends JFrame{
                 @Override
                 public void insertUpdate(DocumentEvent de) {
                     sendBtn.setEnabled(true);
+                    mailContent.removeAll();
                 }
 
                 @Override
@@ -140,6 +145,7 @@ public class NewMailView extends JFrame{
             recipientMail.getDocument().addDocumentListener(new DocumentListener() {
                 @Override
                 public void insertUpdate(DocumentEvent de) {
+                    recipientMail.removeAll();
                     sendBtn.setEnabled(true);
                 }
 
@@ -157,6 +163,7 @@ public class NewMailView extends JFrame{
                 @Override
                 public void mouseClicked(MouseEvent ev){
                     recipientMail.setText("");
+                    recipientMail.removeAll();
                 }
             });
 
