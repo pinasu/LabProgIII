@@ -55,12 +55,15 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         return this.newMailMap.get(account);
     }
 
-    public void setMappuneValue(String account, boolean value){
+    public void setMapValue(String account, boolean value){
         this.newMailMap.replace(account, value);
     }
 
-    public void notifyConnection(String account){
-        this.controller.printLog("User "+account+" has connected.");
+    public void notifyConnection(int type, String account){
+        if(type == 0)
+            this.controller.printLog("User "+account+" has connected.");
+        else if(type == 1)
+            this.controller.printLog("User "+account+" has disconnected.");
     }
 
     public ArrayList<EMail> getMessagesIn(String account)   {
@@ -114,7 +117,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
         this.inboxMap.get(account).getMessagesOut().add(e);
         try {
             for(String rec : e.getEmailRecipient())
-                this.inboxMap.get(rec).getMessagesIn().add(e);
+                this.inboxMap.get(rec).getMessagesIn().add(0, e);
 
             writeMail(e);
             setIDCount();
@@ -268,10 +271,10 @@ class Server extends UnicastRemoteObject implements ServerInterface {
                             this.IDCount = Integer.parseInt(ID);
 
                         if (f.getName().equals("sent"))
-                            emailListOut.add(getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
+                            emailListOut.add(0, getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
 
                         else if (f.getName().equals("received"))
-                            emailListIn.add(getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
+                            emailListIn.add(0 ,getEmailFromPath(PATH + child.getName() + "/" + f.getName() + "/" + ID + ".csv", Integer.parseInt(ID)));
                     }
 
                 }

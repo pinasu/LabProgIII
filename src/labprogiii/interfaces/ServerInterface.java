@@ -10,7 +10,7 @@ public interface ServerInterface extends Remote {
 
     ArrayList<EMail> getMessagesOut(String account) throws RemoteException;
 
-    void notifyConnection(String account) throws RemoteException;
+    void notifyConnection(int type, String account) throws RemoteException;
 
     int sendMail(String account, EMail e) throws RemoteException;
 
@@ -24,5 +24,5 @@ public interface ServerInterface extends Remote {
 
     boolean getMapValue(String account) throws RemoteException;
 
-    void setMappuneValue(String account, boolean value) throws RemoteException;
+    void setMapValue(String account, boolean value) throws RemoteException;
 }

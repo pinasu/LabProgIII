@@ -2,10 +2,7 @@ package labprogiii.client;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,7 +12,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 
-public class ClientController implements MouseListener, ActionListener {
+public class ClientController implements MouseListener, ActionListener, WindowListener {
     Client client;
     ClientView view;
 
@@ -184,4 +181,39 @@ public class ClientController implements MouseListener, ActionListener {
     }
 
 
+    @Override
+    public void windowOpened(WindowEvent e) {}
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        try {
+            client.notifyServer();
+        } catch (RemoteException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+
+    }
 }

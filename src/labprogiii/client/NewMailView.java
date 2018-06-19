@@ -44,6 +44,7 @@ public class NewMailView extends JFrame{
             @Override
             public void mouseClicked(MouseEvent ev){
                 recipientMail.setText("");
+                recipientMail.removeMouseListener(this);
             }
         });
 
@@ -51,6 +52,7 @@ public class NewMailView extends JFrame{
             @Override
             public void mouseClicked(MouseEvent ev){
                 argumentMail.setText("");
+                argumentMail.removeMouseListener(this);
             }
         });
 
@@ -166,7 +168,6 @@ public class NewMailView extends JFrame{
                     recipientMail.removeAll();
                 }
             });
-
         }
 
         this.setSize(700, 400);

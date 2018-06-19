@@ -3,9 +3,7 @@ package labprogiii.client;
 import labprogiii.interfaces.ServerInterface;
 import java.awt.*;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Vector;
+import java.util.*;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.swing.*;
@@ -19,21 +17,20 @@ class Client extends Observable {
     ArrayList<EMail> emailListIn, emailListOut;
     EMail newMail;
 
-    class NewMail implements Runnable {
+    private class NewMail implements Runnable {
         @Override
         public void run() {
             while (true) {
                 try {
-                    System.out.println("Checking for new emails...");
+                    System.out.println("["+account.getAccountName()+"]"+"Checking for new emails...");
                     if (server.getMapValue(account.getAccountName()) == true) {
 
-                        server.setMappuneValue(account.getAccountName(), false);
-
+                        server.setMapValue(account.getAccountName(), false);
                         setChanged();
                         notifyObservers();
                     }
 
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (RemoteException e) {
@@ -49,7 +46,7 @@ class Client extends Observable {
                 this.account = account;
 
                 server = (ServerInterface)(new InitialContext().lookup("rmi:server"));
-                server.notifyConnection(account.getAccountName());
+                server.notifyConnection(0, account.getAccountName());
 
                 getEmailList();
 
@@ -69,14 +66,6 @@ class Client extends Observable {
 
     public Account getAccount(){
         return this.account;
-    }
-
-    public ArrayList<EMail> getEmailListIn(){
-        return this.emailListIn;
-    }
-
-    public ArrayList<EMail> getEmailListOut(){
-        return this.emailListOut;
     }
 
     public void getEmailList() {
@@ -123,14 +112,10 @@ class Client extends Observable {
     }
 
     public int sendMail(EMail e) throws RemoteException {
-        emailListOut.add(e);
+        emailListOut.add(0, e);
 
         this.newMail = e;
         return this.server.sendMail(this.account.getAccountName(), e);
-    }
-
-    public EMail getNewMail(){
-        return this.newMail;
     }
 
     public int deleteReceivedMail(int index) throws RemoteException{
@@ -141,6 +126,10 @@ class Client extends Observable {
     public int deleteSentMail(int index) throws RemoteException{
         emailListOut.remove(index);
         return this.server.deleteSentMail(this.account.getAccountName(), index);
+    }
+
+    public void notifyServer() throws RemoteException {
+        server.notifyConnection(1, account.getAccountName());
     }
 
     private void launchError(String s){

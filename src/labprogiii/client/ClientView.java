@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+
 import labprogiii.interfaces.EMail;
 
 class ClientView extends JFrame implements Observer {
@@ -72,6 +73,7 @@ class ClientView extends JFrame implements Observer {
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         this.setVisible(true);
 
+        this.addWindowListener(this.controller);
     }
 
     public JTable getTable() {
@@ -182,7 +184,7 @@ class ClientView extends JFrame implements Observer {
         deleteItem.addActionListener(this.controller);
     }
 
-    JPanel newMenu(){
+    private JPanel newMenu(){
         JPanel ext = new JPanel();
         JPanel menu = new JPanel();
 
@@ -217,14 +219,16 @@ class ClientView extends JFrame implements Observer {
     public void update(Observable o, Object arg) {
         this.data = (Vector<Vector>) arg;
 
-        if(controller.getType() == 0)
+        if (controller.getType() == 0)
             showMailList(0);
 
-        ToastMessage toastMessage = new ToastMessage(this.client.getAccount().getAccountName()+", you've got a new mail", 8000, this);
+        ToastMessage toastMessage = new ToastMessage("New mail from "+this.data.get(0).get(0)+": "+this.data.get(0).get(1), 8000, this);
         toastMessage.setVisible(true);
+
+
     }
 
-    public class ToastMessage extends JDialog {
+    private class ToastMessage extends JDialog {
         int miliseconds;
         public ToastMessage(String toastString, int time, JFrame view) {
             this.miliseconds = time;
@@ -252,20 +256,18 @@ class ClientView extends JFrame implements Observer {
             panel.add(toastLabel);
             setVisible(false);
 
-            new Thread(){
-                public void run() {
-                    try {
-                        Thread.sleep(miliseconds);
-                        dispose();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            new Thread(() -> {
+                try {
+                    Thread.sleep(miliseconds);
+                    dispose();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            }.start();
+            }).start();
         }
     }
 
-    public class MyTableModel extends DefaultTableModel {
+    private class MyTableModel extends DefaultTableModel {
 
         private MyTableModel(Vector<Vector> data, Vector<String> columnNames) {
             super(data, columnNames);
@@ -276,5 +278,8 @@ class ClientView extends JFrame implements Observer {
         public boolean isCellEditable(int row, int column) {
             return false;
         }
+
     }
+
+
 }
