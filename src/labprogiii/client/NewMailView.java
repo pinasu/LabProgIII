@@ -14,14 +14,18 @@ import java.rmi.RemoteException;
 public class NewMailView extends JFrame{
     Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
     JTextArea recipientMail, mailContent, argumentMail;
+    JScrollPane scrollPane;
 
     public NewMailView(ClientController controller){
         DocumentListener dl = null;
-        
+
         this.setTitle(controller.getAccount()+", write a new email");
 
         JPanel mail = new JPanel();
         this.mailContent = new JTextArea("");
+
+        scrollPane = new JScrollPane(mailContent);
+
         JButton sendBtn = new JButton("Send");
         JPanel buttonPanel = new JPanel();
 
@@ -29,8 +33,6 @@ public class NewMailView extends JFrame{
         this.argumentMail = new JTextArea("Insert argument here");
 
         Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
-
-        mailContent.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         mail.setLayout(new BorderLayout(5,5));
         buttonPanel.setLayout(new BorderLayout(5,5));
@@ -73,7 +75,10 @@ public class NewMailView extends JFrame{
         });
 
         mailContent.setLineWrap(true);
-        mail.add(mailContent, BorderLayout.CENTER);
+
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        mail.add(scrollPane, BorderLayout.CENTER);
 
         this.setSize(700, 400);
         mail.add(buttonPanel, BorderLayout.NORTH);
@@ -101,20 +106,20 @@ public class NewMailView extends JFrame{
 
         if(type == 0) {
             this.setTitle("Answer " + e.getEmailSender());
-            mailContent = new JTextArea("");
+            mailContent = new JTextArea(e.getEmailText()+"\n\t"+e.getEmailSender()+" wrote on "+e.getEmailDate()+"\n\nRE:\n");
+            scrollPane = new JScrollPane(mailContent);
             recipientMail = new JTextArea(e.getEmailSender());
             argumentMail = new JTextArea("RE: " + e.getEmailArgument());
         }
         else {
             this.setTitle("Forward email");
             mailContent = new JTextArea(e.getEmailText());
+            scrollPane = new JScrollPane(mailContent);
             recipientMail = new JTextArea("Insert comma-separated recipients whom forward here");
             argumentMail = new JTextArea("FW: " + e.getEmailArgument());
         }
 
         Border border = BorderFactory.createLineBorder(Color.LIGHT_GRAY);
-
-        mailContent.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
         mail.setLayout(new BorderLayout(5, 5));
         buttonPanel.setLayout(new BorderLayout(5, 5));
@@ -129,7 +134,6 @@ public class NewMailView extends JFrame{
                 @Override
                 public void insertUpdate(DocumentEvent de) {
                     sendBtn.setEnabled(true);
-                    mailContent.removeAll();
                 }
 
                 @Override
@@ -173,6 +177,11 @@ public class NewMailView extends JFrame{
         this.setSize(700, 400);
         mail.add(buttonPanel, BorderLayout.NORTH);
 
+        mailContent.setLineWrap(true);
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        mail.add(scrollPane, BorderLayout.CENTER);
+
         sendBtn.setSize(50, 100);
         sendBtn.setEnabled(false);
 
@@ -183,10 +192,6 @@ public class NewMailView extends JFrame{
 
         this.add(mail);
 
-        mailContent.setLineWrap(true);
-
-        mail.add(mailContent, BorderLayout.CENTER);
-
         this.setLocation(dim.width / 2 - this.getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
         this.setVisible(true);
 
@@ -196,9 +201,11 @@ public class NewMailView extends JFrame{
     public String getRecipient(){
         return this.recipientMail.getText();
     }
+
     public String getArgument(){
         return this.argumentMail.getText();
     }
+
     public String getContent(){
         return this.mailContent.getText();
     }

@@ -1,7 +1,5 @@
 package labprogiii.server;
 
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,7 +12,8 @@ class ServerView extends JFrame implements Observer {
     Server server;
     JTextArea textArea;
     JScrollPane scrollPane;
-    
+
+
     public ServerView(Server server){
         super("Server Log");
 
