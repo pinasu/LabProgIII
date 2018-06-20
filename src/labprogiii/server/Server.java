@@ -288,7 +288,7 @@ class Server extends UnicastRemoteObject implements ServerInterface {
 
             }
         }
-        this.IDCount++;
+        setIDCount();
     }
 
     private EMail getEmailFromPath(String path, int ID) throws RemoteException {

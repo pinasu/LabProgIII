@@ -113,7 +113,7 @@ public class NewMailView extends JFrame{
         }
         else {
             this.setTitle("Forward email");
-            mailContent = new JTextArea(e.getEmailText());
+            mailContent = new JTextArea(e.getEmailText()+"\n\tforwarded by "+e.getEmailSender()+"\n\n");
             scrollPane = new JScrollPane(mailContent);
             recipientMail = new JTextArea("Insert comma-separated recipients whom forward here");
             argumentMail = new JTextArea("FW: " + e.getEmailArgument());

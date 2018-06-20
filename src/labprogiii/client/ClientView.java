@@ -109,12 +109,16 @@ class ClientView extends JFrame implements Observer {
         }
 
         JTextArea content = new JTextArea("Argument: " + e.getEmailArgument() + "\n\n" + e.getEmailText());
+
+        JScrollPane scrollPane = new JScrollPane(content);
+
         content.setEditable(false);
         content.setBorder(BorderFactory.createCompoundBorder(
                 content.getBorder(),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
-        frame.add(content, BorderLayout.CENTER);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
         frame.setSize(600, 300);
         Dimension dimMv = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation(dimMv.width / 2 - frame.getSize().width / 2, dimMv.height / 2 - frame.getSize().height / 2);
