@@ -16,7 +16,7 @@ public class ClientController implements MouseListener, ActionListener, WindowLi
     Client client;
     ClientView view;
 
-    int p = 0;
+    int p = -1;
 
     Account account;
 
